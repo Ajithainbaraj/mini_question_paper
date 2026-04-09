@@ -5,6 +5,7 @@ A web-based application for generating customized question papers using AI. Supp
 ## Features
 
 ### 📚 University Question Papers
+
 - Generate MCQs, short answer, and long answer questions
 - Support for different subjects, semesters, and exam types
 - Bloom's taxonomy integration for question classification
@@ -12,12 +13,14 @@ A web-based application for generating customized question papers using AI. Supp
 - Answer key generation
 
 ### 🏆 Competitive Exam Preparation
+
 - NEET/JEE style question generation
 - Topic analysis and concept identification
 - Comprehensive question sets with explanations
 - Subject-wise question banks
 
 ### 📄 Document Processing
+
 - Upload and process multiple file formats:
   - PDF files
   - Word documents (.docx)
@@ -25,6 +28,7 @@ A web-based application for generating customized question papers using AI. Supp
 - Automatic text extraction and content analysis
 
 ### 🎯 AI-Powered Generation
+
 - Uses Google's Gemini 2.5 Flash model
 - Intelligent question generation based on content
 - Customizable question parameters
@@ -40,29 +44,34 @@ A web-based application for generating customized question papers using AI. Supp
 ## Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/Ajithainbaraj/mini_question_paper.git
    cd mini_question_paper
    ```
 
 2. **Create virtual environment**
+
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
 3. **Install dependencies**
+
    ```bash
    pip install -r requirements.txt
    ```
 
 4. **Set up environment variables**
    Create a `.env` file in the root directory:
+
    ```
    GEMINI_API_KEY=your_google_gemini_api_key_here
    ```
 
 5. **Run the application**
+
    ```bash
    python app.py
    ```
@@ -73,12 +82,14 @@ A web-based application for generating customized question papers using AI. Supp
 ## Usage
 
 ### University Question Papers
+
 1. Upload syllabus documents (PDF, DOCX, or TXT)
 2. Enter college, subject, semester, and exam details
 3. Configure question parameters (number of questions, Bloom's levels)
 4. Generate and download PDF question paper
 
 ### Competitive Exams
+
 1. Select competitive exam mode
 2. Enter subject and topics
 3. Generate comprehensive question sets
