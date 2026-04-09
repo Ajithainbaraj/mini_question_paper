@@ -1,0 +1,84 @@
+
+KIT-KALAIGNARKARUNANIDHI INSTITUTE OF TECHNOLOGY
+------------------------------------------------------------
+B.E / B.Tech – Game Development
+Semester: I
+Examination: internal
+Time: 3 Hours                         Max Marks: 100
+------------------------------------------------------------
+
+PART A – MCQs (10 × 1 = 10 Marks)
+------------------------------------------------------------
+1. Which data structure is primarily used to organize objects in a 3D scene hierarchically, allowing for efficient transformations and rendering?
+   A. ) Hash Map
+   B. ) Scene Graph
+   C. ) Adjacency List
+   D. ) Binary Search Tree
+2. In 2D game development, which transformation operation changes the size of an object without altering its shape?
+   A. ) Translation
+   B. ) Rotation
+   C. ) Scaling
+   D. ) Shearing
+3. What is the primary goal of "Game Balancing" in game design?
+   A. ) To ensure all characters have the same abilities
+   B. ) To make the game equally difficult for all players
+   C. ) To create a fair and enjoyable challenge that avoids frustration or triviality
+   D. ) To minimize the number of bugs in the game code
+4. Which concept is used to model AI behavior by defining a set of states and transitions between them based on specific conditions?
+   A. ) Neural Network
+   B. ) Decision Tree
+   C. ) Finite State Machine
+   D. ) Genetic Algorithm
+5. In the context of ML in game development, which learning paradigm involves an agent learning optimal actions through trial and error by maximizing a reward signal?
+   A. ) Supervised Learning
+   B. ) Unsupervised Learning
+   C. ) Reinforcement Learning
+   D. ) Transfer Learning
+6. What is the main advantage of Hardware Rendering over Software Rendering in modern game engines?
+   A. ) Lower power consumption
+   B. ) Greater control over pixel-level details
+   C. ) Significantly faster processing of complex graphics due to dedicated GPUs
+   D. ) Easier debugging of rendering errors
+7. Which project management technique uses a single time estimate for each activity and focuses on identifying the longest path through the project network?
+   A. ) PERT
+   B. ) Gantt Chart
+   C. ) Critical Path Method (CPM)
+   D. ) Scrum
+8. A visual tool that displays project schedules as horizontal bars, showing start and end dates of tasks and their dependencies, is known as a:
+   A. ) Flowchart
+   B. ) PERT Chart
+   C. ) Gantt Chart
+   D. ) Workflow Diagram
+9. Which Pygame module is primarily used for drawing shapes, text, and images onto the screen surface?
+   A. ) pygame.mixer
+   B. ) pygame.event
+   C. ) pygame.display
+   D. ) pygame.draw
+10. When designing a game avatar in Pygame, what is a crucial aspect to consider for its visual representation and interaction?
+   A. ) Server latency
+   B. ) Network bandwidth
+   C. ) Sprite sheets and animation frames
+   D. ) Database schema
+
+PART B – Answer ANY THREE questions (3 × 10 = 30 Marks)
+------------------------------------------------------------
+1. Explain the concepts of 'Culling' and 'Clipping' in 3D game rendering pipelines and their significance in optimizing performance.
+2. Describe the common Color Models used in game development (e.g., RGB, HSV) and discuss when each might be preferred.
+3. How can AI-driven enemy behavior be implemented to create more challenging and unpredictable adversaries in a game? Provide an example.
+4. Outline the key stages involved in Game Plot Development, from initial concept to narrative structure.
+5. Discuss the role of Spatial Sorting Algorithms in game engines for efficient collision detection or rendering.
+6. Explain how a common Pathfinding algorithm, such as A* (A-star), works in a game environment to enable NPCs to navigate complex maps.
+7. Compare and contrast PERT and CPM project management techniques, highlighting their primary differences and suitable applications in game development.
+8. Describe the process of developing physics algorithms for a 2D platformer game using Pygame, focusing on gravity and collision response.
+
+PART C – Answer ANY ONE question (1 × 30 = 30 Marks)
+------------------------------------------------------------
+1. Evaluate the core concepts of 2D and 3D Game Character Design within the broader context of game frameworks and components. Discuss how these elements collectively contribute to an immersive player experience, providing examples for both 2D and 3D games.
+2. Design a high-level architecture for an isometric puzzle game using Pygame. Your design should specifically address advanced graphics programming techniques, seamless audio integration, efficient asset creation and management, physics algorithm development for puzzle mechanics, and proficient device handling for user input.
+
+------------------------------------------------------------
+End of Question Paper
+------------------------------------------------------------
+Instructions:
+• Answer all questions clearly
+• Draw diagrams wherever necessary

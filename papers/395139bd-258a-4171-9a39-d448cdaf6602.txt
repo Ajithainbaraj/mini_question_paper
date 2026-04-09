@@ -1,0 +1,84 @@
+
+KIT-KALAIGNARKARUNANIDHI INSTITUTE OF TECHNOLOGY
+------------------------------------------------------------
+B.E / B.Tech – Game Development
+Semester: I
+Examination: internal
+Time: 3 Hours                         Max Marks: 100
+------------------------------------------------------------
+
+PART A – MCQs (10 × 1 = 10 Marks)
+------------------------------------------------------------
+1. Which of the following is NOT typically considered a core component of a game framework?
+   A. ) Input handling
+   B. ) Graphics rendering
+   C. ) Network protocols
+   D. ) Story narration
+2. Applying a scaling factor of (2, 0.5) to a 2D object will result in:
+   A. ) Doubling its width and halving its height
+   B. ) Halving its width and doubling its height
+   C. ) Doubling both width and height
+   D. ) Halving both width and height
+3. In the context of computer graphics, which color model is additive and typically used for displaying images on screens?
+   A. ) CMYK
+   B. ) RGB
+   C. ) HSV
+   D. ) HSL
+4. What is the primary purpose of game plot development in the pre-production phase?
+   A. ) To finalize all character animations
+   B. ) To establish the game's narrative, setting, and major events
+   C. ) To optimize network code for multiplayer
+   D. ) To debug collision detection systems
+5. A game AI for a simple enemy that switches between "Patrol" and "Chase" states based on player proximity is an example of implementing a:
+   A. ) Neural Network
+   B. ) Genetic Algorithm
+   C. ) Finite State Machine
+   D. ) Decision Tree
+6. Which type of machine learning in games involves an agent learning optimal actions through trial and error by maximizing a reward signal?
+   A. ) Supervised Learning
+   B. ) Unsupervised Learning
+   C. ) Reinforcement Learning
+   D. ) Semi-supervised Learning
+7. What is the main advantage of hardware rendering over software rendering in modern game development?
+   A. ) Greater artistic control over pixel output
+   B. ) Reduced reliance on dedicated graphics cards
+   C. ) Significantly faster processing of complex 3D scenes
+   D. ) Easier debugging of rendering pipelines
+8. In project management, what does the Critical Path Method (CPM) primarily determine?
+   A. ) The total budget allocated for the project
+   B. ) The shortest possible time to complete the project
+   C. ) The number of resources required for each task
+   D. ) The quality control checkpoints
+9. A Gantt chart is most effectively used for:
+   A. ) Calculating the financial return on investment
+   B. ) Visualizing project schedules and task dependencies over time
+   C. ) Analyzing the statistical probability of project success
+   D. ) Managing human resources allocation
+10. Pygame is primarily known for its capabilities in developing:
+   A. ) Complex 3D AAA titles with realistic physics
+   B. ) Backend server infrastructure for online games
+   C. ) 2D interactive experiences and simple 3D simulations
+   D. ) Operating systems for gaming consoles
+
+PART B – Answer ANY THREE questions (3 × 10 = 30 Marks)
+------------------------------------------------------------
+1. Explain the concept of a Scene Graph in 3D game development and its importance in managing complex game worlds.
+2. Differentiate between view frustum culling and back-face culling, explaining how each contributes to optimizing rendering performance in 3D games.
+3. Discuss the key principles of game balancing, providing examples of how designers can maintain fairness and challenge for players throughout a game.
+4. Design a simple AI-driven enemy behavior for a 2D platformer game, outlining its states and transitions based on player interaction.
+5. Describe the role of spatial sorting algorithms in optimizing collision detection within a game engine. Provide an example of such an algorithm.
+6. Implement a high-level overview of the A* pathfinding algorithm for a grid-based game, highlighting its key components and how it finds an optimal path.
+7. Compare and contrast the Critical Path Method (CPM) and Program Evaluation and Review Technique (PERT) in project scheduling, highlighting their primary differences and suitable applications.
+8. Explain how physics algorithms are integrated into Pygame to simulate realistic interactions between game objects, such as gravity or collisions.
+
+PART C – Answer ANY ONE question (1 × 30 = 30 Marks)
+------------------------------------------------------------
+1. Elaborate on the core concepts and considerations involved in designing compelling 2D and 3D game characters. Discuss how factors like visual style, animation principles, and game mechanics influence character design choices.
+2. Propose a comprehensive game development plan for creating a simple isometric puzzle game using Pygame. Your plan should cover asset creation, advanced graphics programming techniques, seamless audio integration, and device handling.
+
+------------------------------------------------------------
+End of Question Paper
+------------------------------------------------------------
+Instructions:
+• Answer all questions clearly
+• Draw diagrams wherever necessary

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Generated Question Paper</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>📄 Generated Question Paper</h1>
+
+      <pre class="paper-view">
+{{ result }}
+        </pre
+      >
+
+      <div class="actions">
+        <a href="/download_pdf">
+          <button class="success">⬇ Download PDF</button>
+        </a>
+
+        <a href="/">
+          <button class="secondary">⬅ Generate Another</button>
+        </a>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,84 @@
+
+KIT-KALAIGNARKARUNANIDHI INSTITUTE OF TECHNOLOGY
+------------------------------------------------------------
+B.E / B.Tech – Game Development
+Semester: I
+Examination: internal
+Time: 3 Hours                         Max Marks: 100
+------------------------------------------------------------
+
+PART A – MCQs (10 × 1 = 10 Marks)
+------------------------------------------------------------
+1. What is the primary role of an activation function in a neural network?
+   A. To calculate the error rate.
+   B. To introduce non-linearity into the network's output.
+   C. To initialize the weights of the network.
+   D. To determine the learning rate.
+2. Which phenomenon occurs when a model performs exceptionally well on training data but poorly on unseen data?
+   A. Under-fitting
+   B. Over-fitting
+   C. ias
+   D. Variance
+3. The main objective of the backpropagation algorithm in a neural network is to:
+   A. Randomly initialize network weights.
+   B. Propagate input data forward through the layers.
+   C. just the network's weights to minimize the loss function.
+   D. Select the optimal activation function.
+4. Which of the following is considered a hyperparameter in a neural network?
+   A. Weight
+   B. ias
+   C. Learning rate
+   D. Neuron activation
+5. Softmax regression is typically used for what type of problem?
+   A. inary classification
+   B. Regression with continuous outputs
+   C. Multi-class classification
+   D. lustering
+6. What is the primary function of a convolutional layer in a CNN?
+   A. To flatten the input data into a vector.
+   B. To apply fully connected operations for classification.
+   C. To extract features from the input data using filters.
+   D. To reduce the dimensionality of the feature maps.
+7. What is a key advantage of using transfer learning in deep learning?
+   A. It always guarantees higher accuracy than training from scratch.
+   B. It allows training deep models with very small datasets by leveraging pre-trained models.
+   C. It eliminates the need for any data preprocessing.
+   D. It only works for image classification tasks.
+8. Recurrent Neural Networks (RNNs) are primarily designed to handle what type of data?
+   A. Tabular data
+   B. Image data with spatial dependencies
+   C. Sequential data with temporal dependencies
+   D. Unstructured text data only
+9. Encoder-Decoder architectures are most commonly applied in which scenario?
+   A. Image recognition
+   B. Time series forecasting
+   C. Sequence-to-sequence tasks like machine translation
+   D. Unsupervised clustering
+10. What is the main goal of a standard autoencoder?
+   A. To generate new, unseen data samples.
+   B. To classify input data into predefined categories.
+   C. To learn a compressed, latent representation of the input data.
+   D. To perform dimensionality reduction without learning features.
+
+PART B – Answer ANY THREE questions (3 × 10 = 30 Marks)
+------------------------------------------------------------
+1. Explain the concept of bias-variance tradeoff in the context of neural networks and how it relates to under-fitting and over-fitting.
+2. Describe the early stopping condition as a regularization technique to prevent overfitting.
+3. Discuss the role of optimization techniques in deep learning and briefly mention two classical optimization techniques.
+4. List and briefly describe two popular deep learning frameworks.
+5. Outline the fundamental components of a typical Convolutional Neural Network (CNN) architecture.
+6. Compare and contrast Long Short-Term Memory (LSTM) and Gated Recurrent Unit (GRU) networks.
+7. Explain the concept and advantage of a Bidirectional Recurrent Neural Network (Bi-RNN).
+8. Describe the basic principle and architecture of a Boltzmann Machine.
+
+PART C – Answer ANY ONE question (1 × 30 = 30 Marks)
+------------------------------------------------------------
+1. Elaborate on the Transformer architecture, highlighting the significance of the attention mechanism within it.
+2. Discuss the working principle of Generative Adversarial Networks (GANs) and provide two real-world applications.
+
+------------------------------------------------------------
+End of Question Paper
+------------------------------------------------------------
+Instructions:
+• Answer all questions clearly
+• Draw diagrams wherever necessary

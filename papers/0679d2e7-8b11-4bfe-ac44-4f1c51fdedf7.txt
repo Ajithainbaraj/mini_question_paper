@@ -1,0 +1,41 @@
+
+KIT-KALAIGNARKARUNANIDHI INSTITUTE OF TECHNOLOGY
+------------------------------------------------------------
+B.E / B.Tech – Game Development
+Semester: I
+Examination: Internal Assessment
+Time: 3 Hours                         Max Marks: 100
+------------------------------------------------------------
+
+[AI PAPER ANALYTICS SUMMARY]
+This paper covers introductory game development, focusing on the architecture and core components of game engines.
+------------------------------------------------------------
+
+PART B – Descriptive Questions
+------------------------------------------------------------
+1. Explain the role of game engines in game development.
+2. Describe the components of a game engine.
+3. Explain rendering pipelines.
+4. Explain physics engines.
+5. Explain scripting systems in games.
+6. Explain the role of game engines in game development.
+7. Describe the components of a game engine.
+8. Explain rendering pipelines.
+9. Explain physics engines.
+10. Explain scripting systems in games.
+
+
+PART C – Advanced / Application Questions
+------------------------------------------------------------
+1. Design a complete game development pipeline using a game engine.
+2. Explain the architecture of a modern game engine.
+3. Design a complete game development pipeline using a game engine.
+4. Explain the architecture of a modern game engine.
+
+
+------------------------------------------------------------
+End of Question Paper
+------------------------------------------------------------
+Instructions:
+• Answer all questions clearly
+• Draw diagrams wherever necessary

@@ -1,0 +1,100 @@
+
+KIT-KALAIGNARKARUNANIDHI INSTITUTE OF TECHNOLOGY
+------------------------------------------------------------
+B.E / B.Tech – Game Development
+Semester: I
+Examination: Internal Assessment
+Time: 3 Hours                         Max Marks: 100
+------------------------------------------------------------
+
+[AI PAPER ANALYTICS SUMMARY]
+⚠️ AI ERROR: Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and... Showing generated fallback paper instead.
+------------------------------------------------------------
+
+PART A – (MCQs)
+------------------------------------------------------------
+1. Sample MCQ 1: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+2. Sample MCQ 2: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+3. Sample MCQ 3: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+4. Sample MCQ 4: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+5. Sample MCQ 5: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+6. Sample MCQ 6: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+7. Sample MCQ 7: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+8. Sample MCQ 8: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+9. Sample MCQ 9: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+10. Sample MCQ 10: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+
+PART B – Descriptive Questions
+------------------------------------------------------------
+1. Explain concept 1 related to the role of game engines in game development.
+2. Explain concept 2 related to the role of game engines in game development.
+3. Explain concept 3 related to the role of game engines in game development.
+4. Explain concept 4 related to the role of game engines in game development.
+5. Explain concept 5 related to the role of game engines in game development.
+6. Explain concept 6 related to the role of game engines in game development.
+7. Explain concept 7 related to the role of game engines in game development.
+8. Explain concept 8 related to the role of game engines in game development.
+
+
+PART C – Advanced / Application Questions
+------------------------------------------------------------
+1. Design a complete architecture pipeline 1 using a game engine.
+2. Design a complete architecture pipeline 2 using a game engine.
+
+
+------------------------------------------------------------
+End of Question Paper
+------------------------------------------------------------
+Instructions:
+• Answer all questions clearly
+• Draw diagrams wherever necessary

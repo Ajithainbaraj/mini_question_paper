@@ -1,0 +1,142 @@
+
+KIT-KALAIGNARKARUNANIDHI INSTITUTE OF TECHNOLOGY
+------------------------------------------------------------
+B.E / B.Tech – Game Development
+Semester: I
+Examination: Internal Assessment
+Time: 3 Hours                         Max Marks: 100
+------------------------------------------------------------
+
+[AI PAPER ANALYTICS SUMMARY]
+This paper covers introductory game development, focusing on the architecture and core components of game engines.
+------------------------------------------------------------
+
+PART A – (MCQs)
+------------------------------------------------------------
+1. What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+2. What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+3. What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+4. What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+5. What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+6. What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+7. What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+8. What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+9. What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+10. What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+11. What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+12. What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+13. What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+14. What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+15. What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+16. What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+17. What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+18. What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+19. What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+20. What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+
+------------------------------------------------------------
+End of Question Paper
+------------------------------------------------------------
+Instructions:
+• Answer all questions clearly
+• Draw diagrams wherever necessary

@@ -1,0 +1,84 @@
+
+KIT-KALAIGNARKARUNANIDHI INSTITUTE OF TECHNOLOGY
+------------------------------------------------------------
+B.E / B.Tech – Game Development
+Semester: I
+Examination: internal
+Time: 3 Hours                         Max Marks: 100
+------------------------------------------------------------
+
+PART A – MCQs (10 × 1 = 10 Marks)
+------------------------------------------------------------
+1. What is the primary purpose of a game framework in 3D game development?
+   A. To provide a standardized structure and reusable components for game creation.
+   B. To design individual 3D models and textures for characters.
+   C. To manage the financial aspects of game production.
+   D. To solely handle player input and control mechanisms.
+2. In game rendering, what is the main distinction between 'culling' and 'clipping'?
+   A. ulling removes objects outside the frustum, while clipping removes parts of objects intersecting the frustum.
+   B. ulling optimizes texture loading, while clipping optimizes shader compilation.
+   C. ulling refers to animation keyframe reduction, while clipping refers to sound file compression.
+   D. ulling manages network latency, while clipping handles multiplayer synchronization.
+3. Which color model is most commonly used for displaying images and graphics on digital screens, such as monitors and televisions?
+   A. MYK
+   B. RGB
+   C. HSL
+   D. Lab
+4. What is the primary objective of 'game balancing' in the design process?
+   A. To ensure the game is equally challenging for all players regardless of skill level.
+   B. To make the game aesthetically pleasing and visually consistent.
+   C. To create a fair, engaging, and enjoyable experience by adjusting mechanics, difficulty, and rewards.
+   D. To minimize the game's file size for faster downloads.
+5. Which element is crucial for effectively conveying the game's story, character motivations, and emotional depth to the player?
+   A. Game physics engine
+   B. Script narration
+   C. ollision detection system
+   D. User interface customization
+6. What type of machine learning is best suited for training game AI agents to learn optimal behaviors through trial and error, by interacting with the game environment and receiving rewards or penalties?
+   A. Supervised Learning
+   B. Unsupervised Learning
+   C. Reinforcement Learning
+   D. Transfer Learning
+7. What is a key advantage of hardware rendering over software rendering in modern game engines?
+   A. Hardware rendering is typically slower but more accurate.
+   B. Hardware rendering offloads graphical computations to dedicated GPU, leading to significantly faster performance.
+   C. Software rendering requires less memory than hardware rendering.
+   D. Software rendering is more compatible with older operating systems.
+8. In the Critical Path Method (CPM) for project management, what does the 'critical path' represent?
+   A. The sequence of tasks that have the most available slack time.
+   B. The shortest possible duration to complete the entire project.
+   C. The sequence of tasks that must be completed on time to avoid delaying the entire project.
+   D. The tasks that require the most financial resources.
+9. Which Pygame module is primarily utilized for drawing various shapes, lines, and displaying images on the game screen?
+   A. pygame.mixer
+   B. pygame.event
+   C. pygame.display
+   D. pygame.draw
+10. When designing an avatar in Pygame for an immersive 2D experience, what is a crucial aspect to consider for enhancing player identification and engagement?
+   A. Limiting the color palette to only primary colors.
+   B. Ensuring the avatar's design allows for clear visual feedback and expresses player agency.
+   C. Making the avatar's movement speed extremely slow.
+   D. Using only pre-defined, non-customizable character models.
+
+PART B – Answer ANY THREE questions (3 × 10 = 30 Marks)
+------------------------------------------------------------
+1. Explain the concept of a scene graph in 3D game development and describe its primary benefits for managing complex game worlds.
+2. Describe the three fundamental types of 3D transformations – translation, rotation, and scaling – and briefly explain their purpose in positioning and manipulating objects within a 3D game environment.
+3. How are Finite State Machines (FSMs) utilized for modeling AI behavior in games? Provide a simple example of an enemy AI's behavior modeled using an FSM.
+4. Discuss the principles behind designing AI-driven enemy behavior to create a challenging yet fair gameplay experience. What factors should be considered?
+5. Explain the role of spatial sorting algorithms in optimizing game engine performance, particularly in scenarios involving collision detection and rendering large numbers of objects.
+6. Describe how pathfinding algorithms, such as A*, are essential for non-player characters (NPCs) in games. Provide an overview of their basic function.
+7. Illustrate the components and purpose of a Gantt Chart in project scheduling for game development. How does it aid in managing tasks and timelines?
+8. Outline the basic steps involved in developing a simple physics algorithm for collision detection and response in a Pygame application, considering two rectangular objects.
+
+PART C – Answer ANY ONE question (1 × 30 = 30 Marks)
+------------------------------------------------------------
+1. Elaborate on the comprehensive process of developing a compelling game plot and crafting memorable characters, emphasizing their interrelation and impact on player engagement. Discuss how narrative structure and character arcs contribute to an immersive experience.
+2. Discuss the challenges and best practices for seamlessly integrating graphics, sound, and physics in the development of isometric and tile-based games using Pygame. How can these elements be harmonized to create a cohesive and immersive player experience?
+
+------------------------------------------------------------
+End of Question Paper
+------------------------------------------------------------
+Instructions:
+• Answer all questions clearly
+• Draw diagrams wherever necessary

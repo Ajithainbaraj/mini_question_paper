@@ -1,0 +1,69 @@
+
+KIT-KALAIGNARKARUNANIDHI INSTITUTE OF TECHNOLOGY
+------------------------------------------------------------
+B.E / B.Tech – Deep Neural networks
+Semester: 1
+Examination: Internal
+Question Paper: SET A
+Time: 3 Hours                         Max Marks: 100
+------------------------------------------------------------
+
+PART A – MCQs (10 × 1 = 10 Marks)
+------------------------------------------------------------
+
+PART B – Answer ANY FIVE questions (5 × 10 = 50 Marks)
+------------------------------------------------------------
+1. Explain animation systems.
+2. Explain AI in games.
+3. Explain rendering pipeline.
+4. What is physics engine?
+
+PART C – Answer ANY ONE question (1 × 30 = 30 Marks)
+------------------------------------------------------------
+1. Design a complete game development pipeline.
+
+------------------------------------------------------------
+End of Question Paper
+------------------------------------------------------------
+Instructions:
+• Answer all questions clearly
+• Draw diagrams wherever necessary
+
+
+
+KIT-KALAIGNARKARUNANIDHI INSTITUTE OF TECHNOLOGY
+------------------------------------------------------------
+B.E / B.Tech – Deep Neural networks
+Semester: 1
+Examination: Internal
+Question Paper: SET B
+Time: 3 Hours                         Max Marks: 100
+------------------------------------------------------------
+
+PART A – MCQs (10 × 1 = 10 Marks)
+------------------------------------------------------------
+1. What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. Compiler
+   D. IDE
+
+
+PART B – Answer ANY FIVE questions (5 × 10 = 50 Marks)
+------------------------------------------------------------
+1. Explain shaders.
+2. Explain collision detection.
+3. Describe game loops.
+4. Explain game engines.
+
+PART C – Answer ANY ONE question (1 × 30 = 30 Marks)
+------------------------------------------------------------
+1. Discuss AI techniques used in games.
+2. Explain modern 3D rendering architecture.
+
+------------------------------------------------------------
+End of Question Paper
+------------------------------------------------------------
+Instructions:
+• Answer all questions clearly
+• Draw diagrams wherever necessary

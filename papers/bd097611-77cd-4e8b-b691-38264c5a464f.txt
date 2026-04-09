@@ -1,0 +1,142 @@
+
+KIT-KALAIGNARKARUNANIDHI INSTITUTE OF TECHNOLOGY
+------------------------------------------------------------
+B.E / B.Tech – Game Development
+Semester: I
+Examination: Internal Assessment
+Time: 3 Hours                         Max Marks: 100
+------------------------------------------------------------
+
+[AI PAPER ANALYTICS SUMMARY]
+⚠️ AI ERROR: Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and... Showing generated fallback paper instead.
+------------------------------------------------------------
+
+PART A – (MCQs)
+------------------------------------------------------------
+1. Sample MCQ 1: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+2. Sample MCQ 2: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+3. Sample MCQ 3: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+4. Sample MCQ 4: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+5. Sample MCQ 5: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+6. Sample MCQ 6: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+7. Sample MCQ 7: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+8. Sample MCQ 8: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+9. Sample MCQ 9: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+10. Sample MCQ 10: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+11. Sample MCQ 11: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+12. Sample MCQ 12: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+13. Sample MCQ 13: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+14. Sample MCQ 14: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+15. Sample MCQ 15: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+16. Sample MCQ 16: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+17. Sample MCQ 17: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+18. Sample MCQ 18: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+19. Sample MCQ 19: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+20. Sample MCQ 20: What is a game engine?
+   A. Hardware
+   B. Software framework
+   C. ompiler
+   D. IDE
+
+
+------------------------------------------------------------
+End of Question Paper
+------------------------------------------------------------
+Instructions:
+• Answer all questions clearly
+• Draw diagrams wherever necessary

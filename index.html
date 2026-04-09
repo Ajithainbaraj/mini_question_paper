@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>AI – University Question Paper Generator</title>
+    <link rel="stylesheet" href="static/style.css">
+
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>🎓 AI – University Question Paper Generator</h1>
+
+      <form method="POST" enctype="multipart/form-data">
+
+
+        <label>College Name:</label>
+        <input
+          type="text"
+          name="college"
+          placeholder="Enter College Name"
+          required
+        />
+
+        <label>Course / Subject Name:</label>
+        <input
+          type="text"
+          name="subject"
+          placeholder="e.g. Game Development"
+          required
+        />
+
+        <label>Semester:</label>
+        <select name="semester" required>
+          <option value="I">Semester I</option>
+          <option value="II">Semester II</option>
+          <option value="III">Semester III</option>
+          <option value="IV">Semester IV</option>
+          <option value="V">Semester V</option>
+          <option value="VI">Semester VI</option>
+          <option value="VII">Semester VII</option>
+          <option value="VIII">Semester VIII</option>
+        </select>
+
+        <label>Examination Type:</label>
+        <select name="exam_type" required>
+          <option value="internal">Internal Assessment</option>
+          <option value="model">Model Examination</option>
+          <option value="endsem">End Semester Examination</option>
+        </select>
+
+        <label>Difficulty Level:</label>
+        <select name="difficulty">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+
+        <label>Upload Syllabus / Notes:</label>
+        <input
+          type="file"
+          name="syllabus_file"
+          accept=".txt,.pdf,.docx"
+          required
+        />
+
+        <button type="submit">Generate Question Paper</button>
+      </form>
+    </div>
+  </body>
+</html>

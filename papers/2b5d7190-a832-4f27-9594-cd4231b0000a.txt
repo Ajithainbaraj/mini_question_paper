@@ -1,0 +1,84 @@
+
+KIT-KALAIGNARKARUNANIDHI INSTITUTE OF TECHNOLOGY
+------------------------------------------------------------
+B.E / B.Tech – Game Development
+Semester: III
+Examination: model
+Time: 3 Hours                         Max Marks: 100
+------------------------------------------------------------
+
+PART A – MCQs (10 × 1 = 10 Marks)
+------------------------------------------------------------
+1. What is the primary function of a game engine?
+   A. To compile code
+   B. To provide a software framework for building games
+   C. To design 3D models
+   D. To act as an operating system
+2. Which of the following is responsible for rendering 2D or 3D graphics?
+   A. Physics Engine
+   B. Rendering Engine
+   C. udio Engine
+   D. Input System
+3. In game development, what does 'UI' stand for?
+   A. User Interaction
+   B. User Interface
+   C. Unified Integration
+   D. Universal Input
+4. What defines the rules and behavior of objects in a game world?
+   A. Texture Mapping
+   B. I Scripts
+   C. Physics Engine
+   D. Shader Graph
+5. Which component manages background music and sound effects?
+   A. udio Engine
+   B. Network Stack
+   C. Renderer
+   D. Memory Manager
+6. What is 'Raycasting' mostly used for in game engines?
+   A. Processing Audio
+   B. ollision Detection and Line of Sight
+   C. Texturing
+   D. Memory Allocation
+7. Which scripting language is predominantly used in the Unity Game Engine?
+   A. ++
+   B. Python
+   C. #
+   D. Java
+8. What is a 'Prefab' in game engine terminology?
+   A. pre-recorded video
+   B. reusable game object template
+   C. pre-compiled shader
+   D. networking protocol
+9. Which technique limits the number of rendered polygons based on camera view?
+   A. Frustum Culling
+   B. Raytracing
+   C. V-Sync
+   D. nti-aliasing
+10. What manages multiplayer connectivity in modern engines?
+   A. Rendering Pipeline
+   B. Networking API / Middleware
+   C. sset Importer
+   D. Physics Subsystem
+
+PART B – Answer ANY THREE questions (3 × 10 = 30 Marks)
+------------------------------------------------------------
+1. Explain the architecture of a modern game engine.
+2. Discuss the importance and basic mechanics of a physics engine.
+3. Describe the difference between 2D and 3D rendering pipelines.
+4. Analyze the role of scripting and narrative logic in game design.
+5. What are the common algorithms used for collision detection?
+6. Explain how memory management works in large scale AAA games.
+7. Discuss the usage of AI protocols like NavMeshes and Pathfinding.
+8. Describe the audio engine's components (listeners, sources, and mixers).
+
+PART C – Answer ANY ONE question (1 × 30 = 30 Marks)
+------------------------------------------------------------
+1. Design a comprehensive system architecture for a massively multiplayer online game (MMO) including server-client interaction.
+2. Critically analyze how hardware advancements (like Raytracing algorithms) have shaped the evolution of game engine rendering.
+
+------------------------------------------------------------
+End of Question Paper
+------------------------------------------------------------
+Instructions:
+• Answer all questions clearly
+• Draw diagrams wherever necessary

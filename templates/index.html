@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>AI – University Question Paper Generator</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+
+  <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <h2 class="nav-logo">🎓 AI Question Generator</h2>
+        <div class="nav-links">
+          <a href="/" class="nav-link active">University Papers</a>
+          <a href="/competitive" class="nav-link">Competitive Exams</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>🎓 AI – University Question Paper Generator</h1>
+
+      <form method="POST" enctype="multipart/form-data">
+        <label>College Name:</label>
+        <input
+          type="text"
+          name="college"
+          placeholder="Enter College Name"
+          required
+        />
+
+        <label>Course / Subject Name:</label>
+        <input
+          type="text"
+          name="subject"
+          placeholder="e.g. Game Development"
+          required
+        />
+
+        <label>Semester:</label>
+        <select name="semester" required>
+          <option value="I">Semester I</option>
+          <option value="II">Semester II</option>
+          <option value="III">Semester III</option>
+          <option value="IV">Semester IV</option>
+          <option value="V">Semester V</option>
+          <option value="VI">Semester VI</option>
+          <option value="VII">Semester VII</option>
+          <option value="VIII">Semester VIII</option>
+        </select>
+
+        <label>Examination Type:</label>
+        <select name="exam_type" required>
+          <option value="internal">Internal Assessment</option>
+          <option value="model">Model Examination</option>
+          <option value="endsem">End Semester Examination</option>
+        </select>
+
+        <label>Difficulty Level:</label>
+        <select name="difficulty">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+
+        <label>Upload Syllabus / Notes:</label>
+        <input
+          type="file"
+          name="syllabus_file"
+          accept=".txt,.pdf,.docx"
+          required
+        />
+        
+        <br><br>
+        <label style="font-weight: bold;">Additional Features (Optional):</label>
+        <div style="margin-bottom: 5px;">
+          <input type="checkbox" name="include_blooms" id="include_blooms" value="yes" style="width: auto; display: inline-block;">
+          <label for="include_blooms" style="display: inline-block; font-weight: normal;">Include Bloom's Taxonomy tags for each question</label>
+        </div>
+        <div style="margin-bottom: 15px;">
+          <input type="checkbox" name="include_answer_key" id="include_answer_key" value="yes" style="width: auto; display: inline-block;">
+          <label for="include_answer_key" style="display: inline-block; font-weight: normal;">Generate Answer Key</label>
+        </div>
+
+        <button type="submit">Generate Question Paper</button>
+      </form>
+    </div>
+  </body>
+</html>

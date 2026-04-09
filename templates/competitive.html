@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>AI – Competitive Exam Analyzer</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+
+  <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <h2 class="nav-logo">🎓 AI Question Generator</h2>
+        <div class="nav-links">
+          <a href="/" class="nav-link">University Papers</a>
+          <a href="/competitive" class="nav-link active">Competitive Exams</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>🏆 AI – Competitive Exam Question Generator</h1>
+      <p>Generate practice questions for competitive exams like NEET/JEE/UPSC based on your subject and topics</p>
+
+      {% if error %}
+        <div class="error-message" style="background: #f8d7da; color: #721c24; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+          {{ error }}
+        </div>
+      {% endif %}
+
+      <form method="POST" enctype="multipart/form-data">
+        <label>Subject Name:</label>
+        <input
+          type="text"
+          name="subject"
+          placeholder="e.g. Physics, Chemistry, Biology, Mathematics"
+          required
+        />
+
+        <label>Topics (comma-separated):</label>
+        <textarea
+          name="topics"
+          placeholder="e.g. Mechanics, Thermodynamics, Electromagnetism, Optics, Modern Physics"
+          rows="3"
+          required
+        ></textarea>
+
+        <label>Competitive Exam Type:</label>
+        <select name="exam_type" required>
+          <option value="NEET">NEET (Medical)</option>
+          <option value="JEE">JEE (Engineering)</option>
+          <option value="UPSC">UPSC (Civil Services)</option>
+          <option value="General">General Competitive Exams</option>
+        </select>
+
+        <label>Difficulty Level:</label>
+        <select name="difficulty">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+
+        <label>Number of Questions:</label>
+        <select name="num_questions">
+          <option value="10">10 Questions</option>
+          <option value="20" selected>20 Questions</option>
+          <option value="30">30 Questions</option>
+          <option value="40">40 Questions</option>
+          <option value="50">50 Questions</option>
+        </select>
+
+        <label>Upload Syllabus/Study Material (Optional):</label>
+        <input
+          type="file"
+          name="syllabus_file"
+          accept=".txt,.pdf,.docx"
+        />
+
+        <button type="submit">Generate Questions</button>
+      </form>
+    </div>
+  </body>
+</html>
