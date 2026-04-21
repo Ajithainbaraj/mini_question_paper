@@ -1,140 +1,178 @@
-# Question Paper Generator
+# 🎓 EduAI — AI-Powered Education Dashboard
 
-A web-based application for generating customized question papers using AI. Supports both university exam formats and competitive exam preparation (NEET/JEE style).
+A full-stack web application that uses **Retrieval-Augmented Generation (RAG)** to generate university question papers, revision notes, AI tutoring, competitive exam prep, and full mock tests — all strictly based on uploaded syllabus content.
 
-## Features
+---
 
-### 📚 University Question Papers
+## ✨ Features
 
-- Generate MCQs, short answer, and long answer questions
-- Support for different subjects, semesters, and exam types
-- Bloom's taxonomy integration for question classification
-- PDF export with proper formatting
-- Answer key generation
+| Tool | Description |
+|---|---|
+| 📄 **Question Papers** | Generate full university exam papers (Part A/B/C) from uploaded syllabus |
+| 🏆 **Competitive Exams** | NEET/JEE style MCQ sets for entrance exam preparation |
+| 🤖 **AI Tutor** | Step-by-step concept explanations based on your notes |
+| 📝 **Revision Notes** | Concise bullet-point exam-focused notes for any topic |
+| 🧪 **Full Mock Test** | Attempt a test, get AI-scored results, analytics & recommendations |
 
-### 🏆 Competitive Exam Preparation
+---
 
-- NEET/JEE style question generation
-- Topic analysis and concept identification
-- Comprehensive question sets with explanations
-- Subject-wise question banks
+## 🏗️ Tech Stack
 
-### 📄 Document Processing
+| Layer | Technology |
+|---|---|
+| Backend | Python, Flask |
+| LLM | Groq API — `llama-3.3-70b-versatile` |
+| Embeddings | `sentence-transformers` — `all-MiniLM-L6-v2` |
+| Vector DB | FAISS (local, CPU) |
+| Document Parsing | PyPDF2, python-docx |
+| PDF Export | ReportLab |
+| Frontend | Jinja2, HTML, CSS, Vanilla JS |
+| Auth | Flask sessions |
 
-- Upload and process multiple file formats:
-  - PDF files
-  - Word documents (.docx)
-  - Text files (.txt)
-- Automatic text extraction and content analysis
+---
 
-### 🎯 AI-Powered Generation
-
-- Uses Google's Gemini 2.5 Flash model
-- Intelligent question generation based on content
-- Customizable question parameters
-
-## Tech Stack
-
-- **Backend**: Python Flask
-- **AI**: Google Generative AI (Gemini)
-- **PDF Generation**: ReportLab
-- **Document Processing**: PyPDF2, python-docx
-- **Frontend**: HTML, CSS, Jinja2 templates
-
-## Installation
-
-1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/Ajithainbaraj/mini_question_paper.git
-   cd mini_question_paper
-   ```
-
-2. **Create virtual environment**
-
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Set up environment variables**
-   Create a `.env` file in the root directory:
-
-   ```
-   GEMINI_API_KEY=your_google_gemini_api_key_here
-   ```
-
-5. **Run the application**
-
-   ```bash
-   python app.py
-   ```
-
-6. **Open in browser**
-   Navigate to `http://localhost:5000`
-
-## Usage
-
-### University Question Papers
-
-1. Upload syllabus documents (PDF, DOCX, or TXT)
-2. Enter college, subject, semester, and exam details
-3. Configure question parameters (number of questions, Bloom's levels)
-4. Generate and download PDF question paper
-
-### Competitive Exams
-
-1. Select competitive exam mode
-2. Enter subject and topics
-3. Generate comprehensive question sets
-4. Review with answer explanations
-
-## Project Structure
+## 🔄 RAG Pipeline
 
 ```
-├── app.py                 # Main Flask application
-├── question_generator.py  # AI question generation logic
-├── utils.py              # Helper functions
-├── requirements.txt      # Python dependencies
-├── .env                  # Environment variables (create this)
+Upload Syllabus (PDF / DOCX / TXT)
+        ↓
+1. Load & Clean — extract raw text
+        ↓
+2. Chunk — split into 500-word chunks (50-word overlap)
+        ↓
+3. Embed — sentence-transformers → 384-dim vectors
+        ↓
+4. Store — FAISS IndexFlatIP (cosine similarity, saved locally)
+        ↓
+Enter Topic / Query
+        ↓
+5. Retrieve — embed query → top-5 similar chunks
+        ↓
+6. Augment — join chunks into context string
+        ↓
+7. Generate — Groq LLM generates output from context only
+        ↓
+Structured output (JSON → formatted paper / notes / answer)
+```
+
+> ⚠️ The LLM is strictly instructed to use **only** the retrieved context — no hallucination from external knowledge.
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/your-username/your-repo.git
+cd your-repo
+```
+
+### 2. Create a virtual environment
+
+```bash
+python -m venv venv
+venv\Scripts\activate        # Windows
+source venv/bin/activate     # Mac/Linux
+```
+
+### 3. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Set up environment variables
+
+Create a `.env` file in the root directory:
+
+```
+GROQ_API_KEY=your_groq_api_key_here
+```
+
+Get a free Groq API key at [https://console.groq.com](https://console.groq.com)
+
+### 5. Run the app
+
+```bash
+python app.py
+```
+
+Open [http://localhost:10000](http://localhost:10000)
+
+---
+
+## 🔑 Default Login Credentials
+
+| Username | Password |
+|---|---|
+| `admin` | `admin123` |
+| `student` | `student123` |
+
+You can also register a new account from the login page.
+
+---
+
+## 📁 Project Structure
+
+```
+├── app.py                        # Flask routes and app config
+├── question_generator.py         # LLM prompt functions (Groq)
+├── rag_pipeline.py               # RAG: load, chunk, embed, store, retrieve
+├── requirements.txt
+├── .env                          # API keys (not committed)
+├── .gitignore
 ├── static/
-│   └── style.css         # CSS styles
+│   └── style.css
 ├── templates/
-│   ├── index.html        # Home page
-│   ├── result.html       # Results page
-│   ├── competitive.html  # Competitive exam interface
-│   └── competitive_result.html  # Competitive results
-├── uploads/              # Uploaded files directory
-├── papers/               # Generated papers directory
-└── test_gemini.py        # API testing script
+│   ├── login.html
+│   ├── register.html
+│   ├── dashboard_base.html       # Shared sidebar layout
+│   ├── fullpage_base.html        # Full-page layout (no sidebar)
+│   ├── index.html                # Dashboard home
+│   ├── papers.html               # Question paper generator
+│   ├── competitive.html
+│   ├── competitive_result.html
+│   ├── tutor.html
+│   ├── revision.html
+│   ├── fulltest.html
+│   ├── fulltest_questions.html
+│   ├── fulltest_result.html
+│   └── result.html
+├── uploads/                      # Temp file storage (auto-deleted)
+├── papers/                       # Generated papers (UUID-named)
+└── vector_store/                 # FAISS indexes (per session)
 ```
 
-## API Configuration
+---
 
-The application uses Google's Gemini AI API. To get an API key:
+## 📦 Requirements
 
-1. Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Create a new API key
-3. Add it to your `.env` file as `GEMINI_API_KEY`
+```
+Flask
+gunicorn
+reportlab
+PyPDF2
+python-docx
+groq
+python-dotenv
+sentence-transformers
+faiss-cpu
+numpy
+tf-keras
+```
 
-## Contributing
+---
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+## 🛡️ Security Notes
 
-## License
+- Uploaded files are **deleted immediately** after text extraction
+- Each paper is stored with a **UUID** to prevent session conflicts
+- `.env` is excluded from version control via `.gitignore`
+- Passwords are stored in-memory (for demo — use a database for production)
+
+---
+
+## 📄 License
 
 This project is open source. Feel free to use and modify as needed.
-
-## Support
-
-For issues or questions, please create an issue in the GitHub repository.
