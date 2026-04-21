@@ -1,4 +1,4 @@
-# 🎓 EduAI — AI-Powered Education Dashboard
+# 🎓 RAG based Question paper generator
 
 A full-stack web application that uses **Retrieval-Augmented Generation (RAG)** to generate university question papers, revision notes, AI tutoring, competitive exam prep, and full mock tests — all strictly based on uploaded syllabus content.
 
