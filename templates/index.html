@@ -1,92 +1,349 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>AI – University Question Paper Generator</title>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='style.css') }}"
-    />
-  </head>
+{% extends "dashboard_base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block breadcrumb %}Home{% endblock %}
 
-  <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-      <div class="nav-container">
-        <h2 class="nav-logo">🎓 AI Question Generator</h2>
-        <div class="nav-links">
-          <a href="/" class="nav-link active">University Papers</a>
-          <a href="/competitive" class="nav-link">Competitive Exams</a>
-        </div>
-      </div>
-    </nav>
+{% block content %}
+{% set active_page = 'home' %}
 
-    <div class="container">
-      <h1>🎓 AI – University Question Paper Generator</h1>
+<style>
+  /* Hero banner */
+  .hero {
+    background: linear-gradient(135deg, #0b0f1e 0%, #1a1040 50%, #0d1b3e 100%);
+    border-radius: 24px;
+    padding: 36px 40px;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(108,99,255,0.2);
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(108,99,255,0.3), transparent 70%);
+    border-radius: 50%;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: 30%;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(168,85,247,0.2), transparent 70%);
+    border-radius: 50%;
+  }
+  .hero-content { position: relative; z-index: 2; }
+  .hero-greeting { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 8px; letter-spacing: 0.5px; }
+  .hero-title {
+    font-size: 32px; font-weight: 900; color: white;
+    line-height: 1.2; margin-bottom: 10px;
+  }
+  .hero-title .typed-text {
+    background: linear-gradient(135deg, #6c63ff, #a855f7, #06b6d4);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-size: 200%;
+    animation: gradientShift 3s ease infinite;
+  }
+  @keyframes gradientShift {
+    0%,100% { background-position: 0% 50%; }
+    50%      { background-position: 100% 50%; }
+  }
+  .hero-sub { font-size: 14px; color: rgba(255,255,255,0.55); max-width: 480px; line-height: 1.6; margin-bottom: 24px; }
 
-      <form method="POST" enctype="multipart/form-data">
-        <label>College Name:</label>
-        <input
-          type="text"
-          name="college"
-          placeholder="Enter College Name"
-          required
-        />
+  .hero-stats { display: flex; gap: 28px; }
+  .hero-stat { text-align: center; }
+  .hero-stat-num { font-size: 22px; font-weight: 800; color: white; }
+  .hero-stat-lbl { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; }
 
-        <label>Course / Subject Name:</label>
-        <input
-          type="text"
-          name="subject"
-          placeholder="e.g. Game Development"
-          required
-        />
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(108,99,255,0.2); border: 1px solid rgba(108,99,255,0.3);
+    padding: 5px 12px; border-radius: 20px;
+    font-size: 12px; color: rgba(255,255,255,0.8); font-weight: 500;
+    margin-bottom: 16px;
+  }
+  .hero-badge span { width: 6px; height: 6px; background: #6c63ff; border-radius: 50%; animation: blink 1.5s ease-in-out infinite; }
+  @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
 
-        <label>Semester:</label>
-        <select name="semester" required>
-          <option value="I">Semester I</option>
-          <option value="II">Semester II</option>
-          <option value="III">Semester III</option>
-          <option value="IV">Semester IV</option>
-          <option value="V">Semester V</option>
-          <option value="VI">Semester VI</option>
-          <option value="VII">Semester VII</option>
-          <option value="VIII">Semester VIII</option>
-        </select>
+  /* Quote ticker */
+  .quote-ticker {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 20px;
+    margin-bottom: 28px;
+    display: flex; align-items: center; gap: 14px;
+    overflow: hidden;
+  }
+  .quote-icon { font-size: 20px; flex-shrink: 0; }
+  .quote-text { font-size: 13px; color: var(--text2); font-style: italic; flex: 1; }
+  .quote-text strong { color: var(--accent); font-style: normal; }
 
-        <label>Examination Type:</label>
-        <select name="exam_type" required>
-          <option value="internal">Internal Assessment</option>
-          <option value="model">Model Examination</option>
-          <option value="endsem">End Semester Examination</option>
-        </select>
+  /* Progress cards */
+  .progress-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 28px; }
+  .progress-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 20px;
+    transition: all 0.3s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .progress-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 18px 18px 0 0;
+  }
+  .progress-card.blue::before { background: linear-gradient(90deg, #6c63ff, #a855f7); }
+  .progress-card.green::before { background: linear-gradient(90deg, #10b981, #06b6d4); }
+  .progress-card.orange::before { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+  .progress-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(108,99,255,0.12); }
+  .pc-icon { font-size: 28px; margin-bottom: 10px; }
+  .pc-label { font-size: 12px; color: var(--text2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .pc-value { font-size: 26px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+  .pc-bar { height: 6px; background: var(--border); border-radius: 6px; overflow: hidden; }
+  .pc-fill { height: 100%; border-radius: 6px; transition: width 1s ease; }
+  .blue .pc-fill { background: linear-gradient(90deg, #6c63ff, #a855f7); }
+  .green .pc-fill { background: linear-gradient(90deg, #10b981, #06b6d4); }
+  .orange .pc-fill { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+  .pc-sub { font-size: 11px; color: var(--text2); margin-top: 6px; }
 
-        <label>Difficulty Level:</label>
-        <select name="difficulty">
-          <option value="easy">Easy</option>
-          <option value="medium" selected>Medium</option>
-          <option value="hard">Hard</option>
-        </select>
+  /* Tool cards */
+  .tools-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 16px; margin-bottom: 32px; }
 
-        <label>Upload Syllabus / Notes:</label>
-        <input
-          type="file"
-          name="syllabus_file"
-          accept=".txt,.pdf,.docx"
-          required
-        />
-        
-        <br><br>
-        <label style="font-weight: bold;">Additional Features (Optional):</label>
-        <div style="margin-bottom: 5px;">
-          <input type="checkbox" name="include_blooms" id="include_blooms" value="yes" style="width: auto; display: inline-block;">
-          <label for="include_blooms" style="display: inline-block; font-weight: normal;">Include Bloom's Taxonomy tags for each question</label>
-        </div>
-        <div style="margin-bottom: 15px;">
-          <input type="checkbox" name="include_answer_key" id="include_answer_key" value="yes" style="width: auto; display: inline-block;">
-          <label for="include_answer_key" style="display: inline-block; font-weight: normal;">Generate Answer Key</label>
-        </div>
+  .tool-card {
+    border-radius: 20px;
+    padding: 24px 20px;
+    color: white;
+    text-decoration: none;
+    display: flex; flex-direction: column; gap: 10px;
+    position: relative; overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    cursor: pointer;
+  }
+  .tool-card::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 120px; height: 120px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    transition: all 0.4s;
+  }
+  .tool-card::after {
+    content: '';
+    position: absolute;
+    bottom: -30px; left: -20px;
+    width: 80px; height: 80px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 50%;
+  }
+  .tool-card:hover { transform: translateY(-6px) scale(1.02); }
+  .tool-card:hover::before { transform: scale(1.5); }
 
-        <button type="submit">Generate Question Paper</button>
-      </form>
+  .tc-badge {
+    position: absolute; top: 14px; right: 14px;
+    font-size: 10px; font-weight: 700;
+    padding: 3px 8px; border-radius: 20px;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(4px);
+  }
+  .tc-icon { font-size: 32px; position: relative; z-index: 1; }
+  .tc-title { font-size: 15px; font-weight: 700; position: relative; z-index: 1; }
+  .tc-desc { font-size: 12px; opacity: 0.8; line-height: 1.5; position: relative; z-index: 1; }
+  .tc-arrow { font-size: 18px; margin-top: auto; opacity: 0.6; position: relative; z-index: 1; transition: transform 0.3s; }
+  .tool-card:hover .tc-arrow { transform: translateX(4px); opacity: 1; }
+
+  .g1 { background: linear-gradient(135deg, #6c63ff, #a855f7); box-shadow: 0 8px 24px rgba(108,99,255,0.35); }
+  .g2 { background: linear-gradient(135deg, #10b981, #06b6d4); box-shadow: 0 8px 24px rgba(16,185,129,0.3); }
+  .g3 { background: linear-gradient(135deg, #f59e0b, #ef4444); box-shadow: 0 8px 24px rgba(245,158,11,0.3); }
+  .g4 { background: linear-gradient(135deg, #ec4899, #8b5cf6); box-shadow: 0 8px 24px rgba(236,72,153,0.3); }
+  .g5 { background: linear-gradient(135deg, #06b6d4, #3b82f6); box-shadow: 0 8px 24px rgba(6,182,212,0.3); }
+
+  /* Form section */
+  .form-section { display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start; }
+
+  /* Smart suggestions */
+  .suggestions {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 20px;
+  }
+  .sug-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 14px; }
+  .sug-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 6px;
+    text-decoration: none;
+  }
+  .sug-item:hover { background: rgba(108,99,255,0.08); }
+  .sug-icon { font-size: 20px; width: 36px; height: 36px; background: var(--bg); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .sug-text { font-size: 13px; font-weight: 500; color: var(--text); }
+  .sug-sub { font-size: 11px; color: var(--text2); }
+  .sug-arrow { margin-left: auto; color: var(--text2); font-size: 14px; }
+
+  @media (max-width: 900px) {
+    .progress-row { grid-template-columns: 1fr; }
+    .form-section { grid-template-columns: 1fr; }
+    .hero-stats { gap: 16px; }
+    .hero-title { font-size: 24px; }
+  }
+</style>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-content">
+    <div class="hero-badge"><span></span> AI-Powered Learning Platform</div>
+    <div class="hero-greeting">Good day, {{ session.get('username','Student') }} 👋</div>
+    <h1 class="hero-title">
+      Turn knowledge into<br>
+      <span class="typed-text" id="typedText">results.</span>
+    </h1>
+    <p class="hero-sub">Your AI-powered study companion. Generate papers, get tutored, and ace every exam — all in one place.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-num">5</div><div class="hero-stat-lbl">AI Tools</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">∞</div><div class="hero-stat-lbl">Questions</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">100%</div><div class="hero-stat-lbl">Syllabus-Based</div></div>
     </div>
-  </body>
-</html>
+  </div>
+</div>
+
+<!-- QUOTE TICKER -->
+<div class="quote-ticker">
+  <div class="quote-icon">💡</div>
+  <div class="quote-text" id="quoteEl">
+    <strong>"</strong><span id="quoteSpan">The beautiful thing about learning is that no one can take it away from you.</span><strong>"</strong>
+    <span style="margin-left:8px;font-size:12px;color:var(--accent);" id="quoteAuthor">— B.B. King</span>
+  </div>
+</div>
+
+<!-- TOOL CARDS -->
+<div class="tools-title">🛠️ AI Tools <span style="font-size:12px;font-weight:500;color:var(--text2);margin-left:4px;">— Pick a tool to get started</span></div>
+<div class="tools-grid">
+  <a href="/papers" class="tool-card g1">
+    <span class="tc-badge">🔥 Popular</span>
+    <div class="tc-icon">📄</div>
+    <div class="tc-title">Question Papers</div>
+    <div class="tc-desc">Full university exam papers from your syllabus via RAG + AI</div>
+    <div class="tc-arrow">→</div>
+  </a>
+  <a href="/competitive" class="tool-card g2">
+    <span class="tc-badge">⭐ Top Pick</span>
+    <div class="tc-icon">🏆</div>
+    <div class="tc-title">Competitive Exams</div>
+    <div class="tc-desc">NEET / JEE style MCQs for entrance exam prep</div>
+    <div class="tc-arrow">→</div>
+  </a>
+  <a href="/tutor" class="tool-card g3">
+    <span class="tc-badge">🤖 AI</span>
+    <div class="tc-icon">🤖</div>
+    <div class="tc-title">AI Tutor</div>
+    <div class="tc-desc">Step-by-step concept explanations like a personal teacher</div>
+    <div class="tc-arrow">→</div>
+  </a>
+  <a href="/revision" class="tool-card g4">
+    <span class="tc-badge">📝 Quick</span>
+    <div class="tc-icon">📝</div>
+    <div class="tc-title">Revision Notes</div>
+    <div class="tc-desc">Instant bullet-point exam-focused notes for any topic</div>
+    <div class="tc-arrow">→</div>
+  </a>
+  <a href="/fulltest" class="tool-card g5">
+    <span class="tc-badge">🆕 New</span>
+    <div class="tc-icon">🧪</div>
+    <div class="tc-title">Full Mock Test</div>
+    <div class="tc-desc">Attempt, get scored, analytics & recommendations</div>
+    <div class="tc-arrow">→</div>
+  </a>
+</div>
+
+<!-- QUICK ACTIONS -->
+<div class="form-section">
+  <div class="suggestions" style="background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px;">
+    <div class="sug-title">⚡ Quick Actions</div>
+    <a href="/papers" class="sug-item">
+      <div class="sug-icon">📄</div>
+      <div><div class="sug-text">Generate Question Paper</div><div class="sug-sub">Full university exam paper via RAG</div></div>
+      <div class="sug-arrow">›</div>
+    </a>
+    <a href="/tutor" class="sug-item">
+      <div class="sug-icon">🤖</div>
+      <div><div class="sug-text">Ask AI Tutor</div><div class="sug-sub">Get concept explained</div></div>
+      <div class="sug-arrow">›</div>
+    </a>
+    <a href="/revision" class="sug-item">
+      <div class="sug-icon">📝</div>
+      <div><div class="sug-text">Quick Revision</div><div class="sug-sub">Generate notes fast</div></div>
+      <div class="sug-arrow">›</div>
+    </a>
+    <a href="/fulltest" class="sug-item">
+      <div class="sug-icon">🧪</div>
+      <div><div class="sug-text">Take Mock Test</div><div class="sug-sub">Test your knowledge</div></div>
+      <div class="sug-arrow">›</div>
+    </a>
+    <a href="/competitive" class="sug-item">
+      <div class="sug-icon">🏆</div>
+      <div><div class="sug-text">Competitive Prep</div><div class="sug-sub">NEET / JEE practice</div></div>
+      <div class="sug-arrow">›</div>
+    </a>
+  </div>
+
+  <div class="card" style="background:linear-gradient(135deg,#0b0f1e,#1a1040);border-color:rgba(108,99,255,0.2);">
+    <div style="font-size:28px;margin-bottom:10px;">🎯</div>
+    <div style="font-size:14px;font-weight:700;color:white;margin-bottom:6px;">Smarter studying starts here</div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">Upload your syllabus once. Let AI generate everything — papers, notes, tests, and explanations.</div>
+  </div>
+</div>
+
+<script>
+  // Typing effect
+  const words = ['results.', 'success.', 'excellence.', 'top scores.'];
+  let wi = 0, ci = 0, deleting = false;
+  const el = document.getElementById('typedText');
+  function type() {
+    const word = words[wi];
+    if (!deleting) {
+      el.textContent = word.slice(0, ++ci);
+      if (ci === word.length) { deleting = true; setTimeout(type, 1800); return; }
+    } else {
+      el.textContent = word.slice(0, --ci);
+      if (ci === 0) { deleting = false; wi = (wi+1) % words.length; }
+    }
+    setTimeout(type, deleting ? 60 : 100);
+  }
+  type();
+
+  // Rotating quotes
+  const quotes = [
+    { text: "The beautiful thing about learning is that no one can take it away from you.", author: "B.B. King" },
+    { text: "An investment in knowledge pays the best interest.", author: "Benjamin Franklin" },
+    { text: "Success is the sum of small efforts, repeated day in and day out.", author: "Robert Collier" },
+    { text: "The expert in anything was once a beginner.", author: "Helen Hayes" },
+    { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+    { text: "Education is the passport to the future.", author: "Malcolm X" },
+  ];
+  let qi = 0;
+  setInterval(() => {
+    qi = (qi + 1) % quotes.length;
+    const span = document.getElementById('quoteSpan');
+    const auth = document.getElementById('quoteAuthor');
+    span.style.opacity = 0;
+    setTimeout(() => {
+      span.textContent = quotes[qi].text;
+      auth.textContent = '— ' + quotes[qi].author;
+      span.style.transition = 'opacity 0.5s';
+      span.style.opacity = 1;
+    }, 400);
+  }, 5000);
+</script>
+{% endblock %}

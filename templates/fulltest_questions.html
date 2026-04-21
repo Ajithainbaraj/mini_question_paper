@@ -1,0 +1,131 @@
+{% extends "fullpage_base.html" %}
+{% block title %}Mock Test — Attempt{% endblock %}
+{% block page_label %}🧪 Mock Test — Attempt{% endblock %}
+
+{% block content %}
+<style>
+  .test-header {
+    background: linear-gradient(135deg, #0b0f1e, #1a1040);
+    border-radius: 20px; padding: 24px 32px; margin-bottom: 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    border: 1px solid rgba(108,99,255,0.2);
+  }
+  .test-header-title { font-size: 20px; font-weight: 800; color: white; }
+  .test-header-meta { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+  .test-badge {
+    padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
+    background: rgba(108,99,255,0.25); color: #a5b4fc; border: 1px solid rgba(108,99,255,0.3);
+  }
+
+  .section-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 20px; margin-bottom: 16px;
+    background: var(--card); border-radius: 14px;
+    border: 1px solid var(--border);
+  }
+  .section-num {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800; color: white; flex-shrink: 0;
+  }
+  .section-title { font-size: 15px; font-weight: 700; color: var(--text); }
+  .section-sub { font-size: 12px; color: var(--text2); }
+
+  .q-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 22px 24px; margin-bottom: 14px;
+    transition: var(--transition);
+  }
+  .q-card:hover { box-shadow: 0 4px 20px rgba(108,99,255,0.08); }
+  .q-num { font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 8px; letter-spacing: 0.5px; text-transform: uppercase; }
+  .q-text { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 16px; line-height: 1.5; }
+
+  .option-label {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 16px; margin-bottom: 8px;
+    background: var(--bg); border: 1.5px solid var(--border);
+    border-radius: 10px; cursor: pointer; font-size: 14px;
+    transition: var(--transition); color: var(--text);
+  }
+  .option-label:hover { border-color: var(--accent); background: rgba(108,99,255,0.05); }
+  .option-label input[type="radio"] { width: auto; accent-color: var(--accent); flex-shrink: 0; }
+  .option-key { font-weight: 800; color: var(--accent); min-width: 22px; }
+
+  .short-textarea {
+    width: 100%; padding: 12px 16px;
+    background: var(--bg); border: 1.5px solid var(--border);
+    border-radius: 12px; font-size: 14px; font-family: 'Inter', sans-serif;
+    color: var(--text); outline: none; resize: vertical; min-height: 90px;
+    transition: var(--transition);
+  }
+  .short-textarea:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px rgba(108,99,255,0.1); }
+
+  .submit-bar {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px 24px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    margin-top: 24px; flex-wrap: wrap;
+  }
+  .submit-note { font-size: 13px; color: var(--text2); }
+</style>
+
+<div class="test-header">
+  <div>
+    <div class="test-header-title">📋 {{ topic }}</div>
+    <div class="test-header-meta">{{ difficulty | capitalize }} difficulty · 5 MCQs + 3 Short Answers · 11 Total Marks</div>
+  </div>
+  <div class="test-badge">🧪 In Progress</div>
+</div>
+
+<form method="POST" action="/fulltest/submit">
+
+  <!-- SECTION A -->
+  <div class="section-header">
+    <div class="section-num" style="background:linear-gradient(135deg,#6c63ff,#a855f7);">A</div>
+    <div>
+      <div class="section-title">Section A — Multiple Choice Questions</div>
+      <div class="section-sub">5 questions · 1 mark each · Select the best answer</div>
+    </div>
+  </div>
+
+  {% for q in test_data.mcqs %}
+  <div class="q-card">
+    <div class="q-num">Question {{ loop.index }} of 5</div>
+    <div class="q-text">{{ q.question }}</div>
+    {% for key, val in q.options.items() %}
+    <label class="option-label">
+      <input type="radio" name="ans_{{ q.id }}" value="{{ key }}" required />
+      <span class="option-key">{{ key }}.</span>
+      {{ val }}
+    </label>
+    {% endfor %}
+  </div>
+  {% endfor %}
+
+  <!-- SECTION B -->
+  <div class="section-header" style="margin-top:28px;">
+    <div class="section-num" style="background:linear-gradient(135deg,#10b981,#06b6d4);">B</div>
+    <div>
+      <div class="section-title">Section B — Short Answer Questions</div>
+      <div class="section-sub">3 questions · 2 marks each · Write in your own words</div>
+    </div>
+  </div>
+
+  {% for q in test_data.short %}
+  <div class="q-card">
+    <div class="q-num">Question {{ loop.index + 5 }} of 8</div>
+    <div class="q-text">{{ q.question }}</div>
+    <textarea class="short-textarea" name="ans_{{ q.id }}" placeholder="Write your answer here..." required></textarea>
+  </div>
+  {% endfor %}
+
+  <div class="submit-bar">
+    <div class="submit-note">💡 Review your answers before submitting. You cannot go back after submission.</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <button type="submit" name="show_answers" value="no" class="btn btn-primary">✅ Submit & Evaluate</button>
+      <button type="submit" name="show_answers" value="yes" class="btn btn-secondary">👁️ Submit & Show Answers</button>
+    </div>
+  </div>
+
+</form>
+{% endblock %}

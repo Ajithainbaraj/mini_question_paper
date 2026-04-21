@@ -1,31 +1,14 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Generated Question Paper</title>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='style.css') }}"
-    />
-  </head>
+{% extends "fullpage_base.html" %}
+{% block title %}Generated Paper{% endblock %}
+{% block page_label %}📄 Question Paper{% endblock %}
 
-  <body>
-    <div class="container">
-      <h1>📄 Generated Question Paper</h1>
-
-      <pre class="paper-view">
-{{ result }}
-        </pre
-      >
-
-      <div class="actions">
-        <a href="/download_pdf">
-          <button class="success">⬇ Download PDF</button>
-        </a>
-
-        <a href="/">
-          <button class="secondary">⬅ Generate Another</button>
-        </a>
-      </div>
-    </div>
-  </body>
-</html>
+{% block content %}
+<div class="card">
+  <div class="card-title">📄 Generated Question Paper</div>
+  <div class="output-box">{{ result }}</div>
+  <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;">
+    <a href="/download_pdf" class="btn btn-success">⬇️ Download PDF</a>
+    <a href="/" class="btn btn-secondary">⬅ Generate Another</a>
+  </div>
+</div>
+{% endblock %}

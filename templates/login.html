@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EduAI – Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      background: #0a0a1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── Animated gradient background ── */
+    .bg-gradient {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #0a0a1a 0%, #0d1b3e 40%, #1a0a2e 70%, #0a1628 100%);
+      z-index: 0;
+    }
+
+    .bg-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.35;
+      animation: orbFloat 8s ease-in-out infinite;
+      z-index: 0;
+    }
+    .orb1 { width: 500px; height: 500px; background: #667eea; top: -150px; left: -150px; animation-delay: 0s; }
+    .orb2 { width: 400px; height: 400px; background: #764ba2; bottom: -100px; right: -100px; animation-delay: 3s; }
+    .orb3 { width: 300px; height: 300px; background: #f093fb; top: 50%; left: 50%; transform: translate(-50%,-50%); animation-delay: 1.5s; }
+
+    @keyframes orbFloat {
+      0%, 100% { transform: scale(1) translate(0, 0); }
+      33%       { transform: scale(1.1) translate(20px, -20px); }
+      66%       { transform: scale(0.95) translate(-15px, 15px); }
+    }
+
+    /* ── Particles ── */
+    #particles { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+
+    /* ── Main layout ── */
+    .page-wrap {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 60px;
+      width: 100%;
+      max-width: 1100px;
+      padding: 20px;
+    }
+
+    /* ── Left panel ── */
+    .left-panel {
+      flex: 1;
+      color: white;
+      animation: slideInLeft 0.9s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-60px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .brand-icon {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+      box-shadow: 0 8px 24px rgba(102,126,234,0.5);
+    }
+
+    .brand-name {
+      font-size: 26px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #667eea, #f093fb);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-title {
+      font-size: 48px;
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 20px;
+    }
+
+    .hero-title .highlight {
+      background: linear-gradient(135deg, #667eea, #f093fb);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-sub {
+      font-size: 16px;
+      color: rgba(255,255,255,0.65);
+      line-height: 1.7;
+      margin-bottom: 36px;
+      max-width: 420px;
+    }
+
+    /* Rotating quotes */
+    .quote-box {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      padding: 20px 24px;
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .quote-box::before {
+      content: '"';
+      position: absolute;
+      top: -10px; left: 16px;
+      font-size: 80px;
+      color: rgba(102,126,234,0.3);
+      font-family: Georgia, serif;
+      line-height: 1;
+    }
+
+    .quote-text {
+      font-size: 15px;
+      color: rgba(255,255,255,0.85);
+      font-style: italic;
+      line-height: 1.6;
+      min-height: 48px;
+      transition: opacity 0.5s ease;
+    }
+
+    .quote-author {
+      font-size: 12px;
+      color: rgba(102,126,234,0.9);
+      font-weight: 600;
+      margin-top: 10px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Stats row */
+    .stats-row {
+      display: flex;
+      gap: 28px;
+      margin-top: 32px;
+    }
+
+    .stat-item { text-align: center; }
+    .stat-num {
+      font-size: 28px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #667eea, #f093fb);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .stat-lbl { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; letter-spacing: 0.5px; }
+
+    /* ── Login Card ── */
+    .login-card {
+      width: 420px;
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 28px;
+      padding: 44px 40px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+      animation: slideInRight 0.9s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(60px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .card-title {
+      font-size: 26px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 6px;
+    }
+
+    .card-sub {
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 32px;
+    }
+
+    /* Input groups */
+    .input-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      font-size: 16px;
+      color: rgba(255,255,255,0.4);
+      pointer-events: none;
+      transition: color 0.3s;
+    }
+
+    .input-wrap input {
+      width: 100%;
+      padding: 14px 14px 14px 44px;
+      background: rgba(255,255,255,0.08);
+      border: 1.5px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      color: white;
+      font-size: 14px;
+      font-family: 'Poppins', sans-serif;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .input-wrap input::placeholder { color: rgba(255,255,255,0.3); }
+
+    .input-wrap input:focus {
+      border-color: #667eea;
+      background: rgba(102,126,234,0.12);
+      box-shadow: 0 0 0 4px rgba(102,126,234,0.15);
+    }
+
+    .input-wrap input:focus + .input-icon,
+    .input-wrap:focus-within .input-icon { color: #667eea; }
+
+    .toggle-pw {
+      position: absolute;
+      right: 14px;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.4);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 0;
+      transition: color 0.3s;
+    }
+    .toggle-pw:hover { color: #667eea; }
+
+    /* Options row */
+    .options-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+
+    .remember-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.6);
+      cursor: pointer;
+    }
+
+    .remember-label input[type="checkbox"] {
+      width: 16px; height: 16px;
+      accent-color: #667eea;
+      cursor: pointer;
+    }
+
+    .forgot-link {
+      font-size: 13px;
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+    .forgot-link:hover { color: #f093fb; }
+
+    /* Login button */
+    .btn-login {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.3s;
+      box-shadow: 0 8px 24px rgba(102,126,234,0.4);
+      letter-spacing: 0.5px;
+    }
+
+    .btn-login::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #764ba2, #f093fb);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .btn-login:hover { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(102,126,234,0.55); }
+    .btn-login:hover::before { opacity: 1; }
+    .btn-login:active { transform: translateY(0); }
+
+    .btn-login span { position: relative; z-index: 1; }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 24px 0;
+      color: rgba(255,255,255,0.25);
+      font-size: 12px;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.12);
+    }
+
+    /* Social buttons */
+    .social-row { display: flex; gap: 12px; }
+
+    .btn-social {
+      flex: 1;
+      padding: 11px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      color: rgba(255,255,255,0.8);
+      font-size: 13px;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.3s;
+      font-weight: 500;
+    }
+    .btn-social:hover { background: rgba(255,255,255,0.13); border-color: rgba(255,255,255,0.25); transform: translateY(-1px); }
+
+    /* Error message */
+    .error-msg {
+      background: rgba(220,53,69,0.15);
+      border: 1px solid rgba(220,53,69,0.4);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #ff6b7a;
+      font-size: 13px;
+      margin-bottom: 20px;
+      display: {% if error %}flex{% else %}none{% endif %};
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Signup link */
+    .signup-row {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.45);
+    }
+    .signup-row a { color: #667eea; font-weight: 600; text-decoration: none; transition: color 0.3s; }
+    .signup-row a:hover { color: #f093fb; }
+
+    /* Loading spinner on submit */
+    .btn-login.loading .btn-text { display: none; }
+    .btn-login .spinner {
+      display: none;
+      width: 20px; height: 20px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      position: relative; z-index: 1;
+    }
+    .btn-login.loading .spinner { display: inline-block; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .page-wrap { flex-direction: column; gap: 30px; }
+      .left-panel { text-align: center; }
+      .hero-sub { margin: 0 auto 36px; }
+      .stats-row { justify-content: center; }
+      .quote-box { max-width: 420px; margin: 0 auto; }
+      .login-card { width: 100%; max-width: 420px; }
+    }
+
+    @media (max-width: 480px) {
+      .hero-title { font-size: 32px; }
+      .login-card { padding: 32px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg-gradient"></div>
+<div class="bg-orb orb1"></div>
+<div class="bg-orb orb2"></div>
+<div class="bg-orb orb3"></div>
+<canvas id="particles"></canvas>
+
+<div class="page-wrap">
+
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <div class="brand">
+      <div class="brand-icon">🎓</div>
+      <div class="brand-name">EduAI</div>
+    </div>
+
+    <h1 class="hero-title">
+      Smarter Exams.<br>
+      <span class="highlight">Powered by AI.</span>
+    </h1>
+
+    <p class="hero-sub">
+      Generate question papers, get AI tutoring, create revision notes, and ace your exams — all in one intelligent platform.
+    </p>
+
+    <div class="quote-box">
+      <div class="quote-text" id="quoteText">Education is the most powerful weapon which you can use to change the world.</div>
+      <div class="quote-author" id="quoteAuthor">— Nelson Mandela</div>
+    </div>
+
+    <div class="stats-row" style="display:none;"></div>
+  </div>
+
+  <!-- LOGIN CARD -->
+  <div class="login-card">
+    <div class="card-title">Welcome Back 👋</div>
+    <div class="card-sub">Enter your credentials to access your dashboard</div>
+
+    {% if error %}
+    <div class="error-msg" style="display:flex;">⚠️ {{ error }}</div>
+    {% endif %}
+
+    {% if registered %}
+    <div style="background:rgba(40,167,69,0.15);border:1px solid rgba(40,167,69,0.4);border-radius:10px;padding:10px 14px;color:#6fcf97;font-size:13px;margin-bottom:20px;display:flex;align-items:center;gap:8px;">
+      ✅ Account created! Sign in below.
+    </div>
+    {% endif %}
+
+    <form method="POST" action="/login" id="loginForm">
+      <div class="input-group">
+        <label>Username</label>
+        <div class="input-wrap">
+          <input type="text" name="username" placeholder="Enter your username" required autocomplete="username" />
+          <span class="input-icon">👤</span>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Password</label>
+        <div class="input-wrap">
+          <input type="password" name="password" id="pwInput" placeholder="Enter your password" required autocomplete="current-password" />
+          <span class="input-icon">🔒</span>
+          <button type="button" class="toggle-pw" onclick="togglePw()" id="pwToggle">👁️</button>
+        </div>
+      </div>
+
+      <div class="options-row">
+        <label class="remember-label">
+          <input type="checkbox" name="remember" /> Remember me
+        </label>
+        <a href="#" class="forgot-link">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="btn-login" id="loginBtn">
+        <span class="btn-text">🚀 Sign In</span>
+        <div class="spinner"></div>
+      </button>
+    </form>
+
+    <div class="divider">or continue with</div>
+
+    <div class="social-row">
+      <button class="btn-social">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        Google
+      </button>
+      <button class="btn-social">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub
+      </button>
+    </div>
+
+    <div class="signup-row">
+      New to EduAI? <a href="/register">Create a free account →</a>
+    </div>
+    <div class="signup-row" style="margin-top:10px;">
+      Already registered? Just enter your username and password above.
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ── Particle canvas ──
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+
+  const particles = Array.from({length: 70}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 2 + 0.5,
+    dx: (Math.random() - 0.5) * 0.4,
+    dy: (Math.random() - 0.5) * 0.4,
+    alpha: Math.random() * 0.5 + 0.1
+  }));
+
+  function drawParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(102,126,234,${p.alpha})`;
+      ctx.fill();
+      p.x += p.dx; p.y += p.dy;
+      if (p.x < 0 || p.x > canvas.width)  p.dx *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+    });
+
+    // Draw connecting lines
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dist = Math.hypot(particles[i].x - particles[j].x, particles[i].y - particles[j].y);
+        if (dist < 120) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(102,126,234,${0.12 * (1 - dist/120)})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(drawParticles);
+  }
+  drawParticles();
+
+  // ── Rotating quotes ──
+  const quotes = [
+    { text: "Education is the most powerful weapon which you can use to change the world.", author: "Nelson Mandela" },
+    { text: "The beautiful thing about learning is that no one can take it away from you.", author: "B.B. King" },
+    { text: "An investment in knowledge pays the best interest.", author: "Benjamin Franklin" },
+    { text: "The more that you read, the more things you will know.", author: "Dr. Seuss" },
+    { text: "Success is the sum of small efforts, repeated day in and day out.", author: "Robert Collier" },
+    { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+    { text: "The expert in anything was once a beginner.", author: "Helen Hayes" },
+  ];
+  let qi = 0;
+  function rotateQuote() {
+    const el = document.getElementById('quoteText');
+    const au = document.getElementById('quoteAuthor');
+    el.style.opacity = 0;
+    setTimeout(() => {
+      qi = (qi + 1) % quotes.length;
+      el.textContent = quotes[qi].text;
+      au.textContent = '— ' + quotes[qi].author;
+      el.style.opacity = 1;
+    }, 500);
+  }
+  setInterval(rotateQuote, 4000);
+
+  // ── Password toggle ──
+  function togglePw() {
+    const inp = document.getElementById('pwInput');
+    const btn = document.getElementById('pwToggle');
+    if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+    else { inp.type = 'password'; btn.textContent = '👁️'; }
+  }
+
+  // ── Login button loading state ──
+  document.getElementById('loginForm').addEventListener('submit', function() {
+    const btn = document.getElementById('loginBtn');
+    btn.classList.add('loading');
+  });
+</script>
+</body>
+</html>

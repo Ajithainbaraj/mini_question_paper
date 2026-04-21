@@ -1,54 +1,23 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Competitive Exam Analysis Results</title>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='style.css') }}"
-    />
-  </head>
+{% extends "fullpage_base.html" %}
+{% block title %}Competitive Questions{% endblock %}
+{% block page_label %}🏆 Competitive Questions{% endblock %}
 
-  <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-      <div class="nav-container">
-        <h2 class="nav-logo">🎓 AI Question Generator</h2>
-        <div class="nav-links">
-          <a href="/" class="nav-link">University Papers</a>
-          <a href="/competitive" class="nav-link active">Competitive Exams</a>
-        </div>
-      </div>
-    </nav>
-
-    <div class="container">
-      <h1>🏆 Competitive Exam Questions</h1>
-      
-      <div class="questions-header">
-        <h2>Subject: {{ subject }}</h2>
-        <div class="exam-info">
-          <span class="exam-type">Exam Type: {{ exam_type }}</span>
-          <span class="difficulty-info">Difficulty: {{ difficulty|title }}</span>
-          <span class="total-questions">Total Questions: {{ total_questions }}</span>
-        </div>
-      </div>
-
-      {% if questions_text %}
-      <div class="questions-section">
-        <div class="question-card" style="white-space: pre-wrap; font-family: inherit; line-height: 1.6; font-size: 16px;">{{ questions_text }}</div>
-      </div>
-      {% endif %}
-
-      <div class="actions">
-        <a href="/competitive_download" class="action-btn success">
-          <button>📄 Download Questions</button>
-        </a>
-        <a href="/competitive" class="action-btn secondary">
-          <button>← Generate More Questions</button>
-        </a>
-        <a href="/" class="action-btn secondary">
-          <button>Generate University Paper →</button>
-        </a>
-      </div>
+{% block content %}
+<div class="card" style="margin-bottom:20px;background:linear-gradient(135deg,#10b981,#06b6d4);border:none;color:white;">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+    <div>
+      <div style="font-size:20px;font-weight:800;">🏆 {{ subject }} — {{ exam_type }}</div>
+      <div style="font-size:13px;opacity:0.8;margin-top:4px;">{{ total_questions }} questions · {{ difficulty | capitalize }} difficulty</div>
     </div>
-  </body>
-</html>
+    <a href="/competitive_download" class="btn" style="background:white;color:#10b981;font-weight:700;">⬇️ Download</a>
+  </div>
+</div>
+<div class="card">
+  <div class="card-title">📋 Questions</div>
+  <div class="output-box">{{ questions_text }}</div>
+  <div style="display:flex;gap:12px;margin-top:18px;flex-wrap:wrap;">
+    <a href="/competitive" class="btn btn-secondary">⬅ Generate More</a>
+    <a href="/" class="btn btn-secondary">🏠 Dashboard</a>
+  </div>
+</div>
+{% endblock %}

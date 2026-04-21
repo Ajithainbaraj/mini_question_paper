@@ -1,0 +1,117 @@
+{% extends "dashboard_base.html" %}
+{% block title %}Question Paper Generator{% endblock %}
+{% block page_title %}Question Paper Generator{% endblock %}
+{% block breadcrumb %}Question Papers{% endblock %}
+
+{% block content %}
+{% set active_page = 'papers' %}
+
+<style>
+  .two-col { display: grid; grid-template-columns: 1fr 300px; gap: 24px; align-items: start; }
+  @media(max-width:900px){ .two-col { grid-template-columns: 1fr; } .form-grid { grid-template-columns: 1fr !important; } }
+</style>
+
+<div class="two-col">
+  <div class="card">
+    <div class="card-title">⚙️ Configure Your Paper</div>
+
+    {% if error %}
+    <div class="alert alert-error">⚠️ {{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="/papers" enctype="multipart/form-data">
+      <div class="form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="form-group">
+          <label>College Name</label>
+          <div class="input-icon-wrap">
+            <input type="text" name="college" placeholder="e.g. KIT College of Engineering" required />
+            <span class="icon">🏫</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Subject Name</label>
+          <div class="input-icon-wrap">
+            <input type="text" name="subject" placeholder="e.g. Game Development" required />
+            <span class="icon">📚</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Semester</label>
+          <select name="semester" required>
+            {% for s in ['I','II','III','IV','V','VI','VII','VIII'] %}
+            <option value="{{ s }}">Semester {{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Examination Type</label>
+          <select name="exam_type" required>
+            <option value="internal">Internal Assessment</option>
+            <option value="model">Model Examination</option>
+            <option value="endsem">End Semester Examination</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Difficulty Level</label>
+          <select name="difficulty">
+            <option value="easy">🟢 Easy</option>
+            <option value="medium" selected>🟡 Medium</option>
+            <option value="hard">🔴 Hard</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Topic / RAG Query</label>
+          <div class="input-icon-wrap">
+            <input type="text" name="query" placeholder="e.g. Game engine architecture" />
+            <span class="icon">🔍</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Upload Syllabus (PDF, DOCX, TXT)</label>
+        <input type="file" name="syllabus_file" accept=".txt,.pdf,.docx" required />
+      </div>
+
+      <div class="check-row">
+        <input type="checkbox" name="include_blooms" id="blooms" value="yes" />
+        <span>Include Bloom's Taxonomy tags</span>
+      </div>
+      <div class="check-row">
+        <input type="checkbox" name="include_answer_key" id="akey" value="yes" />
+        <span>Generate Answer Key</span>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:14px;margin-top:8px;">
+        🚀 Generate Question Paper
+      </button>
+    </form>
+  </div>
+
+  <!-- Info panel -->
+  <div style="display:flex;flex-direction:column;gap:16px;">
+    <div class="card" style="background:linear-gradient(135deg,#6c63ff,#a855f7);border:none;color:white;">
+      <div style="font-size:36px;margin-bottom:10px;">📄</div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:6px;">Paper Structure</div>
+      {% for item in [('Part A','10 MCQs — 1 mark each'),('Part B','8 Short answers — 5 marks each'),('Part C','2 Long answers — 10 marks each')] %}
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.15);font-size:13px;">
+        <span style="font-weight:700;">{{ item[0] }}</span>
+        <span style="opacity:0.8;">{{ item[1] }}</span>
+      </div>
+      {% endfor %}
+      <div style="margin-top:12px;padding:10px;background:rgba(255,255,255,0.15);border-radius:10px;font-size:13px;text-align:center;font-weight:700;">
+        Total: 70 Marks · 3 Hours
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💡 How RAG works</div>
+      {% for step in ['Syllabus is split into chunks','Chunks are embedded into vectors','Query retrieves relevant chunks','AI generates questions from those chunks only'] %}
+      <div style="display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2);">
+        <span style="color:var(--accent);font-weight:700;flex-shrink:0;">{{ loop.index }}.</span> {{ step }}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "dashboard_base.html" %}
+{% block title %}Revision Notes{% endblock %}
+{% block page_title %}Revision Notes{% endblock %}
+{% block breadcrumb %}Revision Notes{% endblock %}
+
+{% block content %}
+{% set active_page = 'revision' %}
+<style>
+  .two-col { display: grid; grid-template-columns: 1fr 300px; gap: 24px; align-items: start; }
+  @media(max-width:900px){ .two-col { grid-template-columns: 1fr; } }
+</style>
+
+<div class="two-col">
+  <div>
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-title">📝 Generate Revision Notes</div>
+      {% if error %}<div class="alert alert-error">⚠️ {{ error }}</div>{% endif %}
+      <form method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+          <label>Upload Syllabus / Notes</label>
+          <input type="file" name="syllabus_file" accept=".txt,.pdf,.docx" required />
+        </div>
+        <div class="form-group">
+          <label>Topic for Revision Notes</label>
+          <div class="input-icon-wrap">
+            <input type="text" name="topic" placeholder="e.g. Game Engine Architecture, Deadlocks in OS" required />
+            <span class="icon">🔍</span>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">📝 Generate Notes</button>
+      </form>
+    </div>
+    {% if notes %}
+    <div class="card">
+      <div class="card-title">📋 Notes — <span style="color:#10b981;">{{ topic }}</span></div>
+      <div class="output-box" style="border-left-color:#10b981;background:rgba(16,185,129,0.04);">{{ notes }}</div>
+      <div style="margin-top:14px;">
+        <button onclick="navigator.clipboard.writeText(document.querySelector('.output-box').innerText).then(()=>alert('Copied!'))" class="btn btn-secondary">📋 Copy Notes</button>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:16px;">
+    <div class="card" style="background:linear-gradient(135deg,#ec4899,#8b5cf6);border:none;color:white;">
+      <div style="font-size:36px;margin-bottom:10px;">📝</div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:6px;">Smart Notes</div>
+      <div style="font-size:13px;opacity:0.9;line-height:1.6;">Concise, exam-focused bullet-point notes with key concepts, definitions, formulas, and keywords.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">✅ Notes include</div>
+      {% for item in ['Key Concepts', 'Important Definitions', 'Formulas (if applicable)', 'Important Facts', 'Keywords'] %}
+      <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2);">
+        <span style="color:#10b981;font-weight:700;">✓</span> {{ item }}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

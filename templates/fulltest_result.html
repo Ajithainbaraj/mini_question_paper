@@ -1,0 +1,178 @@
+{% extends "fullpage_base.html" %}
+{% block title %}Test Results{% endblock %}
+{% block page_label %}📊 Test Results{% endblock %}
+
+{% block content %}
+<style>
+  .score-banner {
+    border-radius: 24px; padding: 32px 40px; margin-bottom: 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    color: white; position: relative; overflow: hidden;
+  }
+  .score-banner::before {
+    content: ''; position: absolute;
+    top: -60px; right: -60px; width: 220px; height: 220px;
+    background: rgba(255,255,255,0.08); border-radius: 50%;
+  }
+  .score-banner-pass { background: linear-gradient(135deg, #10b981, #059669); }
+  .score-banner-fail { background: linear-gradient(135deg, #ef4444, #dc2626); }
+  .score-num { font-size: 56px; font-weight: 900; line-height: 1; }
+  .score-label { font-size: 14px; opacity: 0.8; margin: 4px 0 16px; }
+  .score-pills { display: flex; gap: 12px; flex-wrap: wrap; }
+  .score-pill {
+    background: rgba(255,255,255,0.2); padding: 6px 14px;
+    border-radius: 20px; font-size: 13px; font-weight: 600;
+  }
+  .score-icon { font-size: 80px; opacity: 0.15; position: relative; z-index: 2; }
+
+  .results-grid { display: grid; grid-template-columns: 1fr 280px; gap: 24px; align-items: start; }
+  @media(max-width:900px){ .results-grid { grid-template-columns: 1fr; } }
+
+  .q-result {
+    border-radius: 14px; overflow: hidden; margin-bottom: 12px;
+    border: 1px solid var(--border);
+  }
+  .q-result-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 14px 18px; gap: 12px;
+    background: var(--bg);
+  }
+  .q-result-text { font-size: 14px; font-weight: 500; color: var(--text); flex: 1; line-height: 1.4; }
+  .mark-pill {
+    padding: 4px 12px; border-radius: 20px;
+    font-size: 12px; font-weight: 800; flex-shrink: 0;
+  }
+  .mark-pass { background: #d1fae5; color: #065f46; }
+  .mark-fail { background: #fee2e2; color: #991b1b; }
+  .q-result-body { padding: 14px 18px; background: var(--card); font-size: 13px; }
+  .ans-row { color: var(--text2); margin-bottom: 6px; }
+  .ans-row strong { color: var(--text); }
+  .correct-row {
+    background: #d1fae5; padding: 7px 12px; border-radius: 8px;
+    color: #065f46; margin-bottom: 8px; font-size: 13px;
+  }
+  .feedback-row { color: var(--text2); font-style: italic; font-size: 12px; }
+
+  .sim-bar-wrap { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+  .sim-bar-track { flex: 1; height: 8px; background: var(--border); border-radius: 8px; overflow: hidden; }
+  .sim-bar-fill { height: 100%; border-radius: 8px; }
+  .sim-val { font-size: 13px; font-weight: 700; color: var(--text); min-width: 40px; text-align: right; }
+
+  .analytics-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+  .analytics-title { font-size: 13px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .topic-chip {
+    display: inline-block; padding: 4px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; margin: 3px 3px 3px 0;
+  }
+  .chip-weak { background: #fee2e2; color: #991b1b; }
+  .chip-strong { background: #d1fae5; color: #065f46; }
+  .rec-item { font-size: 12px; color: var(--text2); padding: 5px 0; border-bottom: 1px solid var(--border); display: flex; gap: 8px; }
+  .rec-item:last-child { border-bottom: none; }
+</style>
+
+<!-- SCORE BANNER -->
+<div class="score-banner {% if results.accuracy >= 70 %}score-banner-pass{% else %}score-banner-fail{% endif %}">
+  <div style="position:relative;z-index:2;">
+    <div class="score-num">{{ results.total_marks }}/{{ results.total_questions }}</div>
+    <div class="score-label">Total Score</div>
+    <div class="score-pills">
+      <span class="score-pill">✅ {{ results.correct_count }} Correct</span>
+      <span class="score-pill">❌ {{ results.wrong_count }} Wrong</span>
+      <span class="score-pill">🎯 {{ results.accuracy }}% Accuracy</span>
+    </div>
+  </div>
+  <div class="score-icon">{% if results.accuracy >= 70 %}🏆{% else %}📚{% endif %}</div>
+</div>
+
+<div class="results-grid">
+  <div>
+    <!-- MCQ Results -->
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-title">📋 Section A — MCQ Results</div>
+      {% for r in results.mcq_results %}
+      <div class="q-result" style="border-left:4px solid {% if r.marks==1 %}#10b981{% else %}#ef4444{% endif %};">
+        <div class="q-result-header">
+          <div class="q-result-text">Q{{ r.id }}. {{ r.question }}</div>
+          <span class="mark-pill {% if r.marks==1 %}mark-pass{% else %}mark-fail{% endif %}">{{ r.marks }}/1</span>
+        </div>
+        <div class="q-result-body">
+          <div class="ans-row"><strong>Your Answer:</strong> {{ r.user_answer if r.user_answer else 'Not answered' }}</div>
+          {% if show_answers %}
+          <div class="correct-row">✅ <strong>Correct:</strong> {{ r.correct }} — {{ r.options[r.correct] }}</div>
+          {% endif %}
+          <div class="feedback-row">💬 {{ r.feedback }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Short Answer Results -->
+    <div class="card">
+      <div class="card-title">✍️ Section B — Short Answer Results</div>
+      {% for r in results.short_results %}
+      <div class="q-result" style="border-left:4px solid {% if r.marks==1 %}#10b981{% else %}#ef4444{% endif %};">
+        <div class="q-result-header">
+          <div class="q-result-text">Q{{ r.id }}. {{ r.question }}</div>
+          <span class="mark-pill {% if r.marks==1 %}mark-pass{% else %}mark-fail{% endif %}">{{ r.marks }}/1</span>
+        </div>
+        <div class="q-result-body">
+          <div class="ans-row"><strong>Your Answer:</strong> {{ r.user_answer if r.user_answer else 'Not answered' }}</div>
+          {% if show_answers %}
+          <div class="correct-row">📖 <strong>Model Answer:</strong> {{ r.correct_answer }}</div>
+          {% endif %}
+          <div class="sim-bar-wrap">
+            <span style="font-size:12px;font-weight:600;color:var(--text2);min-width:70px;">Similarity</span>
+            <div class="sim-bar-track">
+              <div class="sim-bar-fill" style="width:{{ r.similarity_score }}%;background:{% if r.similarity_score>=80 %}#10b981{% elif r.similarity_score>=70 %}#06b6d4{% elif r.similarity_score>=50 %}#f59e0b{% else %}#ef4444{% endif %};"></div>
+            </div>
+            <span class="sim-val">{{ r.similarity_score }}%</span>
+          </div>
+          <div class="feedback-row">💬 {{ r.feedback }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Right sidebar -->
+  <div>
+    <div class="analytics-card">
+      <div class="analytics-title" style="color:#ef4444;">⚠️ Weak Areas</div>
+      {% if results.weak_topics %}
+        {% for t in results.weak_topics %}
+        <span class="topic-chip chip-weak">{{ t[:35] }}</span>
+        {% endfor %}
+      {% else %}
+        <div style="font-size:13px;color:#10b981;font-weight:600;">None — Excellent! 🎉</div>
+      {% endif %}
+    </div>
+
+    <div class="analytics-card">
+      <div class="analytics-title" style="color:#10b981;">💪 Strong Areas</div>
+      {% if results.strong_topics %}
+        {% for t in results.strong_topics %}
+        <span class="topic-chip chip-strong">{{ t[:35] }}</span>
+        {% endfor %}
+      {% else %}
+        <div style="font-size:13px;color:var(--text2);">Keep practising!</div>
+      {% endif %}
+    </div>
+
+    <div class="analytics-card">
+      <div class="analytics-title" style="color:var(--accent);">📚 Topics to Revise</div>
+      {% for t in results.recommendations.revision_topics %}
+      <div class="rec-item"><span style="color:var(--accent);">→</span> {{ t }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="analytics-card">
+      <div class="analytics-title" style="color:var(--accent);">🏋️ Practice Suggestions</div>
+      {% for s in results.recommendations.practice_suggestions %}
+      <div class="rec-item"><span style="color:var(--accent);">→</span> {{ s }}</div>
+      {% endfor %}
+    </div>
+
+    <a href="/fulltest" class="btn btn-primary" style="width:100%;justify-content:center;">🔄 Take Another Test</a>
+  </div>
+</div>
+{% endblock %}

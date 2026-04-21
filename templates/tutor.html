@@ -1,0 +1,58 @@
+{% extends "dashboard_base.html" %}
+{% block title %}AI Tutor{% endblock %}
+{% block page_title %}AI Tutor{% endblock %}
+{% block breadcrumb %}AI Tutor{% endblock %}
+
+{% block content %}
+{% set active_page = 'tutor' %}
+<style>
+  .two-col { display: grid; grid-template-columns: 1fr 300px; gap: 24px; align-items: start; }
+  @media(max-width:900px){ .two-col { grid-template-columns: 1fr; } }
+</style>
+
+<div class="two-col">
+  <div>
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-title">🤖 Ask a Concept</div>
+      {% if error %}<div class="alert alert-error">⚠️ {{ error }}</div>{% endif %}
+      <form method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+          <label>Upload Syllabus / Notes</label>
+          <input type="file" name="syllabus_file" accept=".txt,.pdf,.docx" required />
+        </div>
+        <div class="form-group">
+          <label>Your Concept / Question</label>
+          <div class="input-icon-wrap">
+            <textarea name="question" rows="3" placeholder="e.g. Explain the concept of process scheduling in OS" required></textarea>
+            <span class="icon">💬</span>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">💡 Explain Concept</button>
+      </form>
+    </div>
+    {% if answer %}
+    <div class="card">
+      <div class="card-title">📖 Explanation — <span style="color:var(--accent);">{{ question }}</span></div>
+      <div class="output-box" style="border-left-color:#a855f7;">{{ answer }}</div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:16px;">
+    <div class="card" style="background:linear-gradient(135deg,#f59e0b,#ef4444);border:none;color:white;">
+      <div style="font-size:36px;margin-bottom:10px;">🤖</div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:6px;">AI Tutor</div>
+      <div style="font-size:13px;opacity:0.9;line-height:1.6;">Get step-by-step explanations of any concept from your syllabus. Like having a personal teacher 24/7.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">📌 How it works</div>
+      {% for step in ['Upload your notes', 'Type your concept', 'AI retrieves relevant content', 'Get clear explanation with examples'] %}
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2);">
+        <span style="width:22px;height:22px;background:var(--accent);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">{{ loop.index }}</span>
+        {{ step }}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
