@@ -6,6 +6,8 @@ python-docx
 groq
 python-dotenv
 sentence-transformers
+transformers
+torch
 faiss-cpu
 numpy
 tf-keras

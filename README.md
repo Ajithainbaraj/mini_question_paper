@@ -6,28 +6,28 @@ A full-stack web application that uses **Retrieval-Augmented Generation (RAG)** 
 
 ## ✨ Features
 
-| Tool | Description |
-|---|---|
-| 📄 **Question Papers** | Generate full university exam papers (Part A/B/C) from uploaded syllabus |
-| 🏆 **Competitive Exams** | NEET/JEE style MCQ sets for entrance exam preparation |
-| 🤖 **AI Tutor** | Step-by-step concept explanations based on your notes |
-| 📝 **Revision Notes** | Concise bullet-point exam-focused notes for any topic |
-| 🧪 **Full Mock Test** | Attempt a test, get AI-scored results, analytics & recommendations |
+| Tool                     | Description                                                              |
+| ------------------------ | ------------------------------------------------------------------------ |
+| 📄 **Question Papers**   | Generate full university exam papers (Part A/B/C) from uploaded syllabus |
+| 🏆 **Competitive Exams** | NEET/JEE style MCQ sets for entrance exam preparation                    |
+| 🤖 **AI Tutor**          | Step-by-step concept explanations based on your notes                    |
+| 📝 **Revision Notes**    | Concise bullet-point exam-focused notes for any topic                    |
+| 🧪 **Full Mock Test**    | Attempt a test, get AI-scored results, analytics & recommendations       |
 
 ---
 
 ## 🏗️ Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Backend | Python, Flask |
-| LLM | Groq API — `llama-3.3-70b-versatile` |
-| Embeddings | `sentence-transformers` — `all-MiniLM-L6-v2` |
-| Vector DB | FAISS (local, CPU) |
-| Document Parsing | PyPDF2, python-docx |
-| PDF Export | ReportLab |
-| Frontend | Jinja2, HTML, CSS, Vanilla JS |
-| Auth | Flask sessions |
+| Layer            | Technology                                   |
+| ---------------- | -------------------------------------------- |
+| Backend          | Python, Flask                                |
+| LLM              | Groq API — `llama-3.3-70b-versatile`         |
+| Embeddings       | `sentence-transformers` — `all-MiniLM-L6-v2` |
+| Vector DB        | FAISS (local, CPU)                           |
+| Document Parsing | PyPDF2, python-docx                          |
+| PDF Export       | ReportLab                                    |
+| Frontend         | Jinja2, HTML, CSS, Vanilla JS                |
+| Auth             | Flask sessions                               |
 
 ---
 
@@ -44,7 +44,7 @@ Upload Syllabus (PDF / DOCX / TXT)
         ↓
 4. Store — FAISS IndexFlatIP (cosine similarity, saved locally)
         ↓
-Enter Topic / Query
+Enter Topic / Query...
         ↓
 5. Retrieve — embed query → top-5 similar chunks
         ↓
@@ -104,9 +104,9 @@ Open [http://localhost:10000](http://localhost:10000)
 
 ## 🔑 Default Login Credentials
 
-| Username | Password |
-|---|---|
-| `admin` | `admin123` |
+| Username  | Password     |
+| --------- | ------------ |
+| `admin`   | `admin123`   |
 | `student` | `student123` |
 
 You can also register a new account from the login page.
