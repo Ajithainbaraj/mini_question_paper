@@ -1,0 +1,171 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Question Variations - Detail{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('question_variations', show='current') }}">Question Variations</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('question_variations_concept', concept_name=original.concept) }}">
+                            {{ original.concept }}
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Question #{{ original.id }}</li>
+                </ol>
+            </nav>
+            
+            <h2 class="mb-3">
+                <i class="bi bi-diagram-3"></i> Question Variations
+            </h2>
+        </div>
+    </div>
+
+    <!-- Original Question -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-star-fill"></i> Original Question
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="lead mb-3">{{ original.question }}</p>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <small><strong>📚 Chapter:</strong></small><br>
+                            <span class="badge bg-info">{{ original.chapter }}</span>
+                        </div>
+                        <div class="col-md-3">
+                            <small><strong>💡 Concept:</strong></small><br>
+                            <span class="badge bg-success">{{ original.concept }}</span>
+                        </div>
+                        <div class="col-md-3">
+                            <small><strong>📐 Formula:</strong></small><br>
+                            <code>{{ original.formula }}</code>
+                        </div>
+                        <div class="col-md-3">
+                            <small><strong>🎯 Difficulty:</strong></small><br>
+                            <span class="badge bg-warning">{{ original.difficulty }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Variations -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="mb-3">🔄 10 Question Variations</h4>
+            <p class="text-muted">
+                Each variation tests the SAME concept in a DIFFERENT way
+            </p>
+        </div>
+    </div>
+
+    {% for variation in variations %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <span class="badge bg-primary me-2">{{ loop.index }}</span>
+                        <strong>{{ variation.variation_type }}</strong>
+                    </h6>
+                    <span class="badge bg-{{ 'success' if variation.difficulty == 'Easy' else ('warning' if variation.difficulty == 'Medium' else 'danger') }}">
+                        {{ variation.difficulty }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <!-- Question -->
+                    <div class="mb-3">
+                        <strong>📝 Question:</strong>
+                        <p class="mt-2 p-3 bg-light rounded">{{ variation.question }}</p>
+                    </div>
+
+                    <!-- Hint -->
+                    <div class="mb-3">
+                        <strong>💡 Short Hint:</strong>
+                        <p class="mt-2 text-muted">{{ variation.hint }}</p>
+                    </div>
+
+                    <!-- Formula/Concept -->
+                    <div class="mb-3">
+                        <strong>📌 Formula/Concept:</strong>
+                        <p class="mt-2">
+                            <code class="p-2 bg-light rounded">{{ variation.formula }}</code>
+                        </p>
+                    </div>
+
+                    <!-- Steps -->
+                    <div class="mb-3">
+                        <strong>🪜 Steps to Solve:</strong>
+                        <ol class="mt-2">
+                            {% for step in variation.steps %}
+                            <li>{{ step }}</li>
+                            {% endfor %}
+                        </ol>
+                    </div>
+
+                    <!-- Show Full Solution Button -->
+                    <div class="mt-3">
+                        <button class="btn btn-sm btn-outline-primary" 
+                                type="button" 
+                                data-bs-toggle="collapse" 
+                                data-bs-target="#solution-{{ loop.index }}" 
+                                aria-expanded="false" 
+                                aria-controls="solution-{{ loop.index }}">
+                            <i class="bi bi-eye"></i> Show Full Solution
+                        </button>
+                        
+                        <div class="collapse mt-3" id="solution-{{ loop.index }}">
+                            <div class="alert alert-success">
+                                <strong>✅ Complete Solution:</strong>
+                                <p class="mt-2 mb-0">{{ variation.full_solution }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Action Buttons -->
+    <div class="row mt-5 mb-5">
+        <div class="col-12 text-center">
+            <a href="{{ url_for('question_variations_concept', concept_name=original.concept) }}" 
+               class="btn btn-secondary me-2">
+                <i class="bi bi-arrow-left"></i> Back to Concept
+            </a>
+            <a href="{{ url_for('question_variations', show='current') }}" 
+               class="btn btn-primary">
+                <i class="bi bi-house"></i> Back to Dashboard
+            </a>
+            <button onclick="window.print()" class="btn btn-outline-primary ms-2">
+                <i class="bi bi-printer"></i> Print Variations
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    .btn, .breadcrumb, nav {
+        display: none !important;
+    }
+    .card {
+        page-break-inside: avoid;
+        border: 1px solid #000 !important;
+    }
+}
+</style>
+{% endblock %}

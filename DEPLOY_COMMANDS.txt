@@ -1,0 +1,294 @@
+=================================================================
+    🚀 QUICK DEPLOYMENT COMMANDS - COPY & PASTE
+=================================================================
+
+⚠️ IMPORTANT: Make sure you're in the project root directory!
+
+=================================================================
+STEP 1: CHECK CURRENT STATUS
+=================================================================
+
+# Check git status
+git status
+
+# Check current branch
+git branch
+
+# Expected: You should be on 'main' branch
+# Expected: You should see modified files listed
+
+
+=================================================================
+STEP 2: ADD ALL CHANGES
+=================================================================
+
+# Add all new and modified files
+git add .
+
+# Verify what was added
+git status
+
+
+=================================================================
+STEP 3: COMMIT CHANGES
+=================================================================
+
+# Commit with descriptive message
+git commit -m "Add Question Variations feature and update LLM model to openai/gpt-oss-120b"
+
+
+=================================================================
+STEP 4: PUSH TO REMOTE (CHOOSE YOUR PLATFORM)
+=================================================================
+
+─────────────────────────────────────────────────────────────────
+OPTION A: RENDER (Push to GitHub/GitLab, Render auto-deploys)
+─────────────────────────────────────────────────────────────────
+
+# Push to origin (GitHub/GitLab)
+git push origin main
+
+# Render will automatically detect and deploy
+# Monitor: https://dashboard.render.com
+# Wait: 5-15 minutes for deployment
+
+─────────────────────────────────────────────────────────────────
+OPTION B: HEROKU (Direct push to Heroku)
+─────────────────────────────────────────────────────────────────
+
+# First, check if heroku remote exists
+git remote -v
+
+# If heroku remote exists:
+git push heroku main
+
+# If heroku remote doesn't exist, add it:
+heroku git:remote -a your-app-name
+
+# Then push:
+git push heroku main
+
+# Watch logs:
+heroku logs --tail
+
+─────────────────────────────────────────────────────────────────
+OPTION C: BOTH (Push to both remotes)
+─────────────────────────────────────────────────────────────────
+
+# Push to GitHub (for backup/version control)
+git push origin main
+
+# Push to Heroku (for deployment)
+git push heroku main
+
+
+=================================================================
+STEP 5: VERIFY ENVIRONMENT VARIABLES (ONE-TIME SETUP)
+=================================================================
+
+─────────────────────────────────────────────────────────────────
+FOR RENDER (via Dashboard)
+─────────────────────────────────────────────────────────────────
+
+1. Go to: https://dashboard.render.com
+2. Click your service
+3. Go to "Environment" tab
+4. Add/Update:
+   - GROQ_API_KEY = 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
+
+─────────────────────────────────────────────────────────────────
+FOR HEROKU (via CLI)
+─────────────────────────────────────────────────────────────────
+
+# Set Groq API key
+heroku config:set GROQ_API_KEY=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
+
+# Verify it's set
+heroku config
+
+# You should see:
+# GROQ_API_KEY: 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
+
+
+=================================================================
+STEP 6: MONITOR DEPLOYMENT
+=================================================================
+
+─────────────────────────────────────────────────────────────────
+FOR RENDER
+─────────────────────────────────────────────────────────────────
+
+# Open Render dashboard
+https://dashboard.render.com
+
+# Click your service → "Logs" tab
+# Watch for "Build successful" message
+# Service will auto-restart after build
+
+─────────────────────────────────────────────────────────────────
+FOR HEROKU
+─────────────────────────────────────────────────────────────────
+
+# Watch logs in real-time
+heroku logs --tail
+
+# Or check recent logs
+heroku logs --tail --num 100
+
+# Open your app
+heroku open
+
+
+=================================================================
+STEP 7: TEST DEPLOYED APPLICATION
+=================================================================
+
+# Open your app URL (replace with your actual URL)
+
+RENDER:  https://your-app-name.onrender.com
+HEROKU:  https://your-app-name.herokuapp.com
+
+# Test these:
+1. Homepage loads
+2. Login works (admin / admin123)
+3. Dashboard displays
+4. Click "Question Variations" in sidebar ← NEW FEATURE
+5. Upload a test question bank
+6. View analytics dashboard
+7. Generate variations
+
+
+=================================================================
+TROUBLESHOOTING COMMANDS
+=================================================================
+
+─────────────────────────────────────────────────────────────────
+CHECK DEPLOYMENT STATUS
+─────────────────────────────────────────────────────────────────
+
+# For Heroku
+heroku ps
+heroku config
+heroku logs --tail
+
+# For Render
+# Use web dashboard: https://dashboard.render.com
+
+─────────────────────────────────────────────────────────────────
+RESTART APPLICATION
+─────────────────────────────────────────────────────────────────
+
+# For Heroku
+heroku restart
+
+# For Render
+# Go to dashboard → Click "Manual Deploy" → "Deploy latest commit"
+
+─────────────────────────────────────────────────────────────────
+ROLLBACK TO PREVIOUS VERSION
+─────────────────────────────────────────────────────────────────
+
+# For Heroku
+heroku releases              # See all releases
+heroku rollback v123         # Replace v123 with desired version
+
+# For Render
+# Dashboard → Events tab → Click rollback on previous deployment
+
+─────────────────────────────────────────────────────────────────
+CHECK LOGS FOR ERRORS
+─────────────────────────────────────────────────────────────────
+
+# For Heroku
+heroku logs --tail | grep ERROR
+
+# For Render
+# Dashboard → Logs tab → Search for "ERROR"
+
+
+=================================================================
+COMMON ISSUES & FIXES
+=================================================================
+
+ISSUE: "Model not found" error
+FIX:   Verify MODEL = "openai/gpt-oss-120b" in question_generator.py
+       git add question_generator.py
+       git commit -m "Fix model name"
+       git push
+
+ISSUE: Templates not found (404 on /question-variations)
+FIX:   Verify templates committed:
+       git add templates/
+       git commit -m "Add variation templates"
+       git push
+
+ISSUE: Environment variable not set
+FIX:   # Render: Dashboard → Environment → Add GROQ_API_KEY
+       # Heroku: heroku config:set GROQ_API_KEY=your_key
+
+ISSUE: Build fails
+FIX:   Check logs for specific error
+       Verify requirements.txt is correct
+       Clear build cache and redeploy
+
+ISSUE: Timeout errors
+FIX:   Already fixed - Procfile has timeout=120
+
+
+=================================================================
+USEFUL HEROKU COMMANDS (if using Heroku)
+=================================================================
+
+heroku login                          # Login to Heroku
+heroku apps                           # List your apps
+heroku apps:info -a your-app-name    # App info
+heroku config                         # Show all env vars
+heroku logs --tail                    # Stream logs
+heroku ps                             # Check dyno status
+heroku restart                        # Restart app
+heroku run bash                       # Open shell on server
+heroku releases                       # Show release history
+heroku rollback                       # Rollback to previous
+heroku maintenance:on                 # Enable maintenance mode
+heroku maintenance:off                # Disable maintenance mode
+
+
+=================================================================
+VERIFICATION CHECKLIST
+=================================================================
+
+After deployment, verify these work:
+
+[ ] Homepage loads (200 OK)
+[ ] Can login (admin / admin123)
+[ ] Dashboard loads
+[ ] Question Papers feature works
+[ ] Competitive Exams feature works
+[ ] AI Tutor works
+[ ] Revision Notes works
+[ ] Full Mock Test works
+[ ] Chapter Analyzer works
+[ ] Exam Pattern works
+[ ] ⭐ Question Variations works ← NEW
+    [ ] Page loads
+    [ ] Can upload file
+    [ ] Analytics display
+    [ ] Can generate variations
+    [ ] PDF download works
+
+
+=================================================================
+DONE! 🎉
+=================================================================
+
+Your app should now be deployed with the new Question Variations feature!
+
+Next steps:
+1. Test thoroughly
+2. Share with users
+3. Monitor for errors
+4. Gather feedback
+
+Need help? See DEPLOYMENT_GUIDE.md for detailed troubleshooting.
+
+=================================================================

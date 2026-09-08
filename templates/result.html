@@ -1,14 +1,23 @@
 {% extends "fullpage_base.html" %}
-{% block title %}Generated Paper{% endblock %}
-{% block page_label %}📄 Question Paper{% endblock %}
+{% block title %}Generated Question Paper{% endblock %}
+{% block page_label %}<i class="fas fa-file-alt" style="color:#6366f1;"></i> Question Paper{% endblock %}
 
 {% block content %}
 <div class="card">
-  <div class="card-title">📄 Generated Question Paper</div>
-  <div class="output-box">{{ result }}</div>
-  <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;">
-    <a href="/download_pdf" class="btn btn-success">⬇️ Download PDF</a>
-    <a href="/" class="btn btn-secondary">⬅ Generate Another</a>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border);">
+    <div class="card-title" style="margin-bottom:0;">
+      <i class="fas fa-file-alt" style="color:#6366f1;"></i> Generated Question Paper
+    </div>
+    <div style="display:flex;gap:10px;">
+      <a href="/download_pdf" class="btn btn-success">
+        <i class="fas fa-download"></i> Download PDF
+      </a>
+      <a href="/papers" class="btn btn-secondary">
+        <i class="fas fa-plus"></i> New Paper
+      </a>
+    </div>
   </div>
+
+  <div class="output-box">{{ result }}</div>
 </div>
 {% endblock %}

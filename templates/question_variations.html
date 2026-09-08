@@ -1,0 +1,328 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}🧠 Question Variations{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-3">
+                <i class="bi bi-diagram-3"></i> 🧠 Math Question Variation Finder
+            </h2>
+            <p class="text-muted">
+                Upload a mathematics question bank to analyze how the SAME concepts appear differently in exams.
+                <br>
+                <small>Identifies semantic patterns, not just similar wording.</small>
+            </p>
+        </div>
+    </div>
+
+    {% if not analytics %}
+    <!-- Upload Form -->
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-4">📁 Upload Question Bank</h5>
+                    
+                    {% if error %}
+                    <div class="alert alert-danger" role="alert">
+                        <i class="bi bi-exclamation-triangle"></i> {{ error }}
+                    </div>
+                    {% endif %}
+
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="mb-4">
+                            <label for="question_bank_file" class="form-label fw-bold">
+                                Mathematics Question Bank File
+                            </label>
+                            <input type="file" class="form-control form-control-lg" 
+                                   id="question_bank_file" name="question_bank_file" 
+                                   accept=".txt,.pdf,.doc,.docx" required>
+                            <div class="form-text">
+                                Supported formats: PDF, TXT, DOC, DOCX
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info mb-4">
+                            <strong>💡 What This Does:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li>Extracts all math questions from the file</li>
+                                <li>Identifies chapter, concept, formula, and pattern</li>
+                                <li>Groups questions by semantic similarity</li>
+                                <li>Shows how concepts vary across different questions</li>
+                                <li>Generates 10 types of variations for each pattern</li>
+                            </ul>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="bi bi-cpu"></i> Analyze Question Bank
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mt-4">
+                <div class="card-body">
+                    <h6 class="fw-bold">📊 Variation Types We Identify:</h6>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li>✓ Different Numbers</li>
+                                <li>✓ Different Equation Format</li>
+                                <li>✓ Formula-based Variation</li>
+                                <li>✓ Word Problem</li>
+                                <li>✓ Reverse Question</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li>✓ Application Question</li>
+                                <li>✓ Multi-step Question</li>
+                                <li>✓ Conceptual Variation</li>
+                                <li>✓ Changed Conditions</li>
+                                <li>✓ Different Solving Method</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- Analytics Dashboard -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0">📊 Analysis Dashboard</h4>
+                <div>
+                    <a href="{{ url_for('question_variations_download') }}" class="btn btn-success me-2">
+                        <i class="bi bi-download"></i> Download Report
+                    </a>
+                    <a href="{{ url_for('question_variations_new') }}" class="btn btn-secondary">
+                        <i class="bi bi-plus-circle"></i> New Analysis
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Total Questions</h6>
+                    <h2 class="mb-0 text-primary">{{ analytics.total_questions }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Total Concepts</h6>
+                    <h2 class="mb-0 text-success">{{ analytics.total_concepts }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Most Repeated</h6>
+                    <h5 class="mb-0 text-danger">{{ analytics.most_repeated_concept }}</h5>
+                    <small class="text-muted">{{ analytics.most_repeated_count }} questions</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Possible Variations</h6>
+                    <h2 class="mb-0 text-info">{{ analytics.total_possible_variations }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">📚 Chapter Distribution</h6>
+                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Chapter</th>
+                                    <th class="text-end">Questions</th>
+                                    <th class="text-end">%</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for chapter, count in analytics.chapters.items()|sort(attribute='1', reverse=True) %}
+                                <tr>
+                                    <td>{{ chapter }}</td>
+                                    <td class="text-end">{{ count }}</td>
+                                    <td class="text-end">{{ ((count / analytics.total_questions * 100)|round(1)) }}%</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">🎯 Question Pattern Distribution</h6>
+                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Pattern Type</th>
+                                    <th class="text-end">Count</th>
+                                    <th class="text-end">%</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pattern, count in analytics.patterns.items()|sort(attribute='1', reverse=True) %}
+                                <tr>
+                                    <td>{{ pattern }}</td>
+                                    <td class="text-end">{{ count }}</td>
+                                    <td class="text-end">{{ ((count / analytics.total_questions * 100)|round(1)) }}%</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Concept Explorer -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">🔍 Explore Concepts & Variations</h5>
+                    
+                    <!-- Filter Controls -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Filter by Chapter</label>
+                            <select class="form-select" id="filter-chapter">
+                                <option value="">All Chapters</option>
+                                {% for chapter in analytics.chapters.keys()|sort %}
+                                <option value="{{ chapter }}">{{ chapter }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Filter by Difficulty</label>
+                            <select class="form-select" id="filter-difficulty">
+                                <option value="">All Difficulties</option>
+                                <option value="Easy">Easy</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Hard">Hard</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Filter by Pattern</label>
+                            <select class="form-select" id="filter-pattern">
+                                <option value="">All Patterns</option>
+                                {% for pattern in analytics.patterns.keys()|sort %}
+                                <option value="{{ pattern }}">{{ pattern }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button class="btn btn-primary w-100" onclick="applyFilters()">
+                                <i class="bi bi-funnel"></i> Apply Filters
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Concept List -->
+                    <h6 class="fw-bold mb-3">📝 Concepts Found ({{ analytics.total_concepts }})</h6>
+                    <div class="list-group" style="max-height: 400px; overflow-y: auto;">
+                        {% for concept in analytics.concepts_list %}
+                        <a href="{{ url_for('question_variations_concept', concept_name=concept) }}" 
+                           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="bi bi-mortarboard text-primary"></i>
+                                <strong>{{ concept }}</strong>
+                            </span>
+                            <span class="badge bg-primary rounded-pill">
+                                {{ analytics.concepts[concept] }} questions
+                            </span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Variation Type Distribution -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">🔄 Variation Type Frequency</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Variation Type</th>
+                                    <th class="text-end">Frequency</th>
+                                    <th style="width: 40%;">Distribution</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for vtype, count in analytics.variation_type_frequency.items()|sort(attribute='1', reverse=True) %}
+                                <tr>
+                                    <td><strong>{{ vtype }}</strong></td>
+                                    <td class="text-end">{{ count }}</td>
+                                    <td>
+                                        {% set max_count = analytics.variation_type_frequency.values()|max %}
+                                        {% set percentage = (count / max_count * 100)|int if max_count > 0 else 0 %}
+                                        <div class="progress">
+                                            <div class="progress-bar" role="progressbar" 
+                                                 style="width: {{ percentage }}%;" 
+                                                 aria-valuenow="{{ percentage }}" 
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                {{ percentage }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function applyFilters() {
+    const chapter = document.getElementById('filter-chapter').value;
+    const difficulty = document.getElementById('filter-difficulty').value;
+    const pattern = document.getElementById('filter-pattern').value;
+    
+    const params = new URLSearchParams();
+    if (chapter) params.append('chapter', chapter);
+    if (difficulty) params.append('difficulty', difficulty);
+    if (pattern) params.append('pattern', pattern);
+    
+    window.location.href = `{{ url_for('question_variations_filter') }}?${params.toString()}`;
+}
+</script>
+{% endblock %}

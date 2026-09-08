@@ -1,129 +1,122 @@
 {% extends "dashboard_base.html" %}
+{% set active_page = "fulltest" %}
 {% block title %}Full Mock Test{% endblock %}
 {% block page_title %}Full Mock Test{% endblock %}
-{% block breadcrumb %}Full Mock Test{% endblock %}
+{% block breadcrumb %}AI Tools &rsaquo; Full Mock Test{% endblock %}
 
-{% block content %}
-{% set active_page = 'fulltest' %}
-
+{% block extra_css %}
 <style>
-  .ft-hero {
-    background: linear-gradient(135deg, #0b0f1e, #1a1040);
-    border-radius: 24px;
-    padding: 36px 40px;
+  .steps-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
     margin-bottom: 28px;
-    border: 1px solid rgba(108,99,255,0.2);
-    position: relative; overflow: hidden;
-    display: flex; align-items: center; justify-content: space-between; gap: 24px;
   }
-  .ft-hero::before {
-    content: '';
-    position: absolute; top: -60px; right: -60px;
-    width: 250px; height: 250px;
-    background: radial-gradient(circle, rgba(6,182,212,0.25), transparent 70%);
-    border-radius: 50%;
-  }
-  .ft-hero-text { position: relative; z-index: 2; }
-  .ft-hero-title { font-size: 28px; font-weight: 900; color: white; margin-bottom: 8px; }
-  .ft-hero-sub { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.6; max-width: 420px; }
-  .ft-hero-emoji { font-size: 80px; opacity: 0.15; position: relative; z-index: 2; }
 
-  .ft-steps {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px;
+  .step-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 16px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
   }
-  .ft-step {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 16px; padding: 18px 16px;
-    text-align: center; transition: var(--transition);
-  }
-  .ft-step:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
-  .ft-step-num {
-    width: 32px; height: 32px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border-radius: 50%; color: white;
-    font-size: 13px; font-weight: 800;
+
+  .step-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+
+  .step-num {
+    width: 30px; height: 30px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    font-size: 13px;
+    font-weight: 700;
     display: flex; align-items: center; justify-content: center;
     margin: 0 auto 10px;
   }
-  .ft-step-icon { font-size: 22px; margin-bottom: 8px; }
-  .ft-step-label { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-  .ft-step-desc { font-size: 11px; color: var(--text2); line-height: 1.4; }
 
-  .ft-form-wrap { display: grid; grid-template-columns: 1fr 300px; gap: 24px; align-items: start; }
-  @media(max-width:900px){ .ft-steps { grid-template-columns: 1fr 1fr; } .ft-form-wrap { grid-template-columns: 1fr; } }
+  .step-icon { font-size: 24px; margin-bottom: 8px; }
+  .step-lbl  { font-size: 13px; font-weight: 700; color: var(--text); }
+  .step-desc { font-size: 12px; color: var(--text3); margin-top: 4px; line-height: 1.4; }
+
+  .page-layout { display: grid; grid-template-columns: 1fr 270px; gap: 24px; align-items: start; }
+  @media(max-width:900px) { .steps-row { grid-template-columns: 1fr 1fr; } .page-layout { grid-template-columns: 1fr; } }
+  @media(max-width:480px) { .steps-row { grid-template-columns: 1fr; } }
 </style>
+{% endblock %}
 
-<div class="ft-hero">
-  <div class="ft-hero-text">
-    <div class="ft-hero-title">🧪 Full Mock Test</div>
-    <div class="ft-hero-sub">Upload your syllabus, pick a topic and difficulty — get a complete test with scoring, feedback, and learning analytics.</div>
-  </div>
-  <div class="ft-hero-emoji">🧪</div>
-</div>
+{% block content %}
 
-<div class="ft-steps">
-  <div class="ft-step">
-    <div class="ft-step-icon">📤</div>
-    <div class="ft-step-num">1</div>
-    <div class="ft-step-label">Upload</div>
-    <div class="ft-step-desc">Upload your syllabus or notes</div>
+<!-- Steps -->
+<div class="steps-row">
+  <div class="step-card">
+    <div class="step-icon">📤</div>
+    <div class="step-num">1</div>
+    <div class="step-lbl">Upload</div>
+    <div class="step-desc">Upload syllabus or notes</div>
   </div>
-  <div class="ft-step">
-    <div class="ft-step-icon">✍️</div>
-    <div class="ft-step-num">2</div>
-    <div class="ft-step-label">Attempt</div>
-    <div class="ft-step-desc">Answer 5 MCQs + 3 short questions</div>
+  <div class="step-card">
+    <div class="step-icon">✍️</div>
+    <div class="step-num">2</div>
+    <div class="step-lbl">Attempt</div>
+    <div class="step-desc">Answer MCQs and short questions</div>
   </div>
-  <div class="ft-step">
-    <div class="ft-step-icon">📊</div>
-    <div class="ft-step-num">3</div>
-    <div class="ft-step-label">Evaluate</div>
-    <div class="ft-step-desc">AI scores and gives feedback</div>
+  <div class="step-card">
+    <div class="step-icon">📊</div>
+    <div class="step-num">3</div>
+    <div class="step-lbl">Evaluate</div>
+    <div class="step-desc">AI scores and gives feedback</div>
   </div>
-  <div class="ft-step">
-    <div class="ft-step-icon">🎯</div>
-    <div class="ft-step-num">4</div>
-    <div class="ft-step-label">Improve</div>
-    <div class="ft-step-desc">Get analytics and revision tips</div>
+  <div class="step-card">
+    <div class="step-icon">🎯</div>
+    <div class="step-num">4</div>
+    <div class="step-lbl">Improve</div>
+    <div class="step-desc">Review analytics and revision tips</div>
   </div>
 </div>
 
-<div class="ft-form-wrap">
+<div class="page-layout">
+
   <div class="card">
-    <div class="card-title">🚀 Start Your Test</div>
-    {% if error %}<div class="alert alert-error">⚠️ {{ error }}</div>{% endif %}
+    <div class="card-header">
+      <div class="card-title"><i class="fas fa-play-circle" style="color:var(--primary);"></i> Start Mock Test</div>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+    {% endif %}
+
     <form method="POST" enctype="multipart/form-data">
       <div class="form-group">
-        <label>Upload Syllabus / Notes (PDF, DOCX, TXT)</label>
-        <input type="file" name="syllabus_file" accept=".txt,.pdf,.docx" required />
+        <label>Upload Syllabus or Notes</label>
+        <input type="file" name="syllabus_file" accept=".txt,.pdf,.docx" required/>
+        <div style="font-size:12px;color:var(--text3);margin-top:5px;">Supported: PDF, DOCX, TXT</div>
       </div>
       <div class="form-group">
         <label>Topic</label>
-        <div class="input-icon-wrap">
-          <input type="text" name="topic" placeholder="e.g. Game Engine Architecture, OS Scheduling" required />
-          <span class="icon">🔍</span>
-        </div>
+        <input type="text" name="topic" placeholder="e.g. OS Scheduling Algorithms, Neural Networks" required/>
       </div>
       <div class="form-group">
         <label>Difficulty Level</label>
         <select name="difficulty">
-          <option value="easy">🟢 Easy</option>
-          <option value="medium" selected>🟡 Medium</option>
-          <option value="hard">🔴 Hard</option>
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
         </select>
       </div>
-      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:14px;">
-        🚀 Generate & Start Test
+      <button type="submit" class="btn btn-primary btn-lg btn-full">
+        <i class="fas fa-rocket"></i> Generate &amp; Start Test
       </button>
     </form>
   </div>
 
-  <div style="display:flex;flex-direction:column;gap:16px;">
-    <div class="card" style="background:linear-gradient(135deg,#06b6d4,#3b82f6);border:none;color:white;">
-      <div style="font-size:13px;font-weight:700;opacity:0.8;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px;">What's included</div>
-      {% for item in [('📋','5 MCQs','Multiple choice questions'),('✍️','3 Short Answers','Written response questions'),('📊','AI Scoring','Instant evaluation'),('🧠','Analytics','Weak & strong areas'),('🎯','Tips','Personalised revision advice')] %}
-      <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.1);">
-        <span style="font-size:16px;">{{ item[0] }}</span>
+  <div>
+    <div class="card" style="background:linear-gradient(135deg,#06b6d4,#3b82f6);border:none;color:white;margin-bottom:16px;">
+      <h3 style="font-size:16px;font-weight:700;margin-bottom:14px;opacity:0.9;text-transform:uppercase;letter-spacing:0.5px;font-size:11px;">What's included</h3>
+      {% for item in [('📋','5 MCQs','Multiple choice questions'),('✍️','3 Short Answers','Written response'),('📊','AI Scoring','Instant evaluation'),('🎯','Analytics','Weak & strong areas')] %}
+      <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.1);">
+        <span style="font-size:18px;">{{ item[0] }}</span>
         <div>
           <div style="font-size:13px;font-weight:600;">{{ item[1] }}</div>
           <div style="font-size:11px;opacity:0.7;">{{ item[2] }}</div>
@@ -132,5 +125,6 @@
       {% endfor %}
     </div>
   </div>
+
 </div>
 {% endblock %}

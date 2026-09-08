@@ -1,0 +1,446 @@
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                  🧠 MATHEMATICS QUESTION VARIATION FINDER                    ║
+║                         Architecture & Data Flow                             ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           USER INTERACTION FLOW                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    👤 User
+      │
+      ├─► Navigate to "Question Variations" in sidebar
+      │
+      ├─► Upload Math Question Bank (PDF/TXT/DOC/DOCX)
+      │       │
+      │       ├── Sample format:
+      │       │   ALGEBRA - Quadratic Equations
+      │       │   Q1. Solve x² - 5x + 6 = 0
+      │       │   Q2. Find roots of 2x² - 7x + 3 = 0
+      │       │   ...
+      │       │
+      │       └── Supported: 50+ questions, multiple chapters
+      │
+      ├─► View Analytics Dashboard
+      │       │
+      │       ├── Total Questions: 50
+      │       ├── Total Concepts: 12
+      │       ├── Most Repeated: Quadratic Equations (8 questions)
+      │       └── Possible Variations: 120 (12 × 10)
+      │
+      ├─► Explore Concept (e.g., "Quadratic Equations")
+      │       │
+      │       ├── View all 8 questions for this concept
+      │       ├── See variation patterns identified
+      │       └── Example questions shown
+      │
+      ├─► Generate Variations for a Question
+      │       │
+      │       └── Receive 10 variations:
+      │           1. Different Numbers
+      │           2. Different Equation Format
+      │           3. Formula-based Variation
+      │           4. Word Problem
+      │           5. Reverse Question
+      │           6. Application Question
+      │           7. Multi-step Question
+      │           8. Conceptual Variation
+      │           9. Changed Conditions
+      │           10. Different Solving Method
+      │
+      ├─► Study Each Variation
+      │       │
+      │       ├── Read Question
+      │       ├── See Hint
+      │       ├── View Formula
+      │       ├── Follow Steps
+      │       ├── Check Difficulty
+      │       └── Reveal Full Solution (when ready)
+      │
+      └─► Download PDF Report or Print
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           BACKEND DATA FLOW                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    📁 Upload File
+          │
+          ▼
+    ┌──────────────────────┐
+    │  Load Document       │  ← rag_pipeline.load_document()
+    │  (PDF/TXT/DOCX)      │    Extracts raw text
+    └──────────────────────┘
+          │
+          ▼
+    ┌──────────────────────┐
+    │  Clean & Prepare     │  ← Remove extra spaces, normalize
+    └──────────────────────┘
+          │
+          ▼
+    ┌──────────────────────────────────────────────────────────┐
+    │  STEP 1: Analyze Question Bank                          │
+    │  ┌────────────────────────────────────────────────────┐ │
+    │  │ LLM: analyze_math_question_bank()                  │ │
+    │  │                                                    │ │
+    │  │ Input:  Question bank text (8000 chars max)       │ │
+    │  │ Model:  openai/gpt-oss-120b via Groq             │ │
+    │  │ Mode:   JSON structured output                    │ │
+    │  │                                                    │ │
+    │  │ Extracts for each question:                       │ │
+    │  │   • Question text                                 │ │
+    │  │   • Chapter (Algebra, Calculus, etc.)            │ │
+    │  │   • Concept (Quadratic Equations, etc.)          │ │
+    │  │   • Formula (x = [-b ± √(b²-4ac)] / 2a)         │ │
+    │  │   • Pattern (Direct/Word Problem/etc.)           │ │
+    │  │   • Difficulty (Easy/Medium/Hard)                │ │
+    │  │   • Semantic key (solve_quadratic)               │ │
+    │  │   • Keywords [quadratic, solve, roots]           │ │
+    │  │                                                    │ │
+    │  │ Output: JSON with all questions + metadata        │ │
+    │  └────────────────────────────────────────────────────┘ │
+    └──────────────────────────────────────────────────────────┘
+          │
+          ▼
+    ┌──────────────────────────────────────────────────────────┐
+    │  STEP 2: Find Question Variations                        │
+    │  ┌────────────────────────────────────────────────────┐ │
+    │  │ Group by Concept                                   │ │
+    │  │   Quadratic Equations: [Q1, Q2, Q6, Q7, ...]      │ │
+    │  │   Derivatives: [Q9, Q10, Q11, ...]                │ │
+    │  │   Trigonometry: [Q16, Q17, Q18, ...]              │ │
+    │  └────────────────────────────────────────────────────┘ │
+    │          │                                                │
+    │          ▼                                                │
+    │  ┌────────────────────────────────────────────────────┐ │
+    │  │ LLM: find_question_variations()                    │ │
+    │  │                                                    │ │
+    │  │ For each concept group:                           │ │
+    │  │   • Analyze how questions vary                    │ │
+    │  │   • Identify variation patterns                   │ │
+    │  │   • Classify variation types                      │ │
+    │  │   • Find example questions                        │ │
+    │  │   • Generate pattern summary                      │ │
+    │  │                                                    │ │
+    │  │ Output: Variations map per concept                │ │
+    │  └────────────────────────────────────────────────────┘ │
+    └──────────────────────────────────────────────────────────┘
+          │
+          ▼
+    ┌──────────────────────────────────────────────────────────┐
+    │  STEP 3: Build Analytics                                 │
+    │  ┌────────────────────────────────────────────────────┐ │
+    │  │ build_variation_analytics()                        │ │
+    │  │                                                    │ │
+    │  │ Calculate:                                         │ │
+    │  │   • Total questions, concepts, chapters           │ │
+    │  │   • Most repeated concept                         │ │
+    │  │   • Most common pattern                           │ │
+    │  │   • Chapter distribution                          │ │
+    │  │   • Concept frequency                             │ │
+    │  │   • Pattern frequency                             │ │
+    │  │   • Difficulty distribution                       │ │
+    │  │   • Variation type frequency                      │ │
+    │  │                                                    │ │
+    │  │ Output: Analytics dictionary                      │ │
+    │  └────────────────────────────────────────────────────┘ │
+    └──────────────────────────────────────────────────────────┘
+          │
+          ▼
+    ┌──────────────────────┐
+    │  Store in Session    │  ← Flask session
+    │  • analytics         │
+    │  • questions         │
+    │  • variations_map    │
+    └──────────────────────┘
+          │
+          ▼
+    ┌──────────────────────┐
+    │  Render Dashboard    │  ← question_variations.html
+    └──────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      GENERATE VARIATIONS FLOW                                │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    User clicks "Generate Variations" on Question #5
+          │
+          ▼
+    ┌──────────────────────────────────────────────────────────┐
+    │  Retrieve Original Question from Session                 │
+    │    {                                                     │
+    │      "id": 5,                                           │
+    │      "question": "Solve x² - 5x + 6 = 0",              │
+    │      "chapter": "Algebra",                             │
+    │      "concept": "Quadratic Equations",                 │
+    │      "formula": "x = [-b ± √(b²-4ac)] / 2a",          │
+    │      "difficulty": "Medium"                            │
+    │    }                                                    │
+    └──────────────────────────────────────────────────────────┘
+          │
+          ▼
+    ┌──────────────────────────────────────────────────────────┐
+    │  LLM: generate_question_variations()                     │
+    │  ┌────────────────────────────────────────────────────┐ │
+    │  │ Prompt includes:                                   │ │
+    │  │   • Original question                              │ │
+    │  │   • Chapter, concept, formula                      │ │
+    │  │   • Instruction to generate 10 variations          │ │
+    │  │   • Detailed format for each variation             │ │
+    │  │                                                    │ │
+    │  │ Model generates:                                   │ │
+    │  │                                                    │ │
+    │  │ 1. Different Numbers:                              │ │
+    │  │    Q: Solve 2x² - 7x + 3 = 0                       │ │
+    │  │    Hint: Use quadratic formula                     │ │
+    │  │    Formula: Same as original                       │ │
+    │  │    Steps: [Identify a,b,c, Apply formula, ...]    │ │
+    │  │    Solution: x = 3 or x = 0.5                      │ │
+    │  │                                                    │ │
+    │  │ 2. Reverse Question:                               │ │
+    │  │    Q: Form equation with roots 2 and 3             │ │
+    │  │    Hint: Use (x-α)(x-β) = 0                       │ │
+    │  │    Formula: x² - (sum)x + (product) = 0           │ │
+    │  │    Steps: [Sum = 5, Product = 6, ...]             │ │
+    │  │    Solution: x² - 5x + 6 = 0                       │ │
+    │  │                                                    │ │
+    │  │ 3. Word Problem:                                   │ │
+    │  │    Q: A garden's length is 5m more than width...   │ │
+    │  │    Hint: Let width = x, then length = x+5          │ │
+    │  │    Formula: Area = length × width                  │ │
+    │  │    Steps: [Set up equation, Simplify, Solve]      │ │
+    │  │    Solution: width = 1m, length = 6m               │ │
+    │  │                                                    │ │
+    │  │ ... (7 more variations)                            │ │
+    │  │                                                    │ │
+    │  │ Output: JSON with 10 complete variations           │ │
+    │  └────────────────────────────────────────────────────┘ │
+    └──────────────────────────────────────────────────────────┘
+          │
+          ▼
+    ┌──────────────────────┐
+    │  Parse JSON          │
+    └──────────────────────┘
+          │
+          ▼
+    ┌──────────────────────┐
+    │  Render Detail Page  │  ← question_variations_detail.html
+    │  • Original question │
+    │  • 10 variation cards│
+    │  • Expandable solutions│
+    └──────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          DATABASE / SESSION                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    Flask Session Storage (server-side)
+    ───────────────────────────────────
+
+    session['variation_analytics'] = {
+        "total_questions": 50,
+        "total_concepts": 12,
+        "total_chapters": 5,
+        "most_repeated_concept": "Quadratic Equations",
+        "most_repeated_count": 8,
+        "most_common_pattern": "Direct",
+        "total_possible_variations": 120,
+        "chapters": {...},
+        "concepts": {...},
+        "patterns": {...},
+        "difficulties": {...},
+        "variation_type_frequency": {...},
+        "concepts_list": [...]
+    }
+
+    session['variation_questions'] = [
+        {
+            "id": 1,
+            "question": "Solve x² - 5x + 6 = 0",
+            "chapter": "Algebra",
+            "concept": "Quadratic Equations",
+            "formula": "x = [-b ± √(b²-4ac)] / 2a",
+            "pattern_type": "Direct",
+            "difficulty": "Medium",
+            "semantic_key": "solve_quadratic",
+            "keywords": ["quadratic", "solve", "roots"]
+        },
+        {...},
+        ...
+    ]
+
+    session['variations_map'] = {
+        "Quadratic Equations": {
+            "concept": "Quadratic Equations",
+            "total_questions": 8,
+            "variation_types": [...],
+            "pattern_summary": "..."
+        },
+        "Derivatives": {...},
+        ...
+    }
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            UI COMPONENTS                                     │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    Main Dashboard (question_variations.html)
+    ─────────────────────────────────────────
+    ┌─────────────────────────────────────────┐
+    │  📊 Analytics Dashboard                 │
+    │                                         │
+    │  ┌───────┐ ┌───────┐ ┌───────┐ ┌────┐ │
+    │  │  50   │ │  12   │ │Quadra-│ │120 │ │
+    │  │ Total │ │Concep │ │ tic   │ │Var │ │
+    │  │  Q    │ │  ts   │ │ Eqns  │ │iats│ │
+    │  └───────┘ └───────┘ └───────┘ └────┘ │
+    │                                         │
+    │  Chapter Distribution                   │
+    │  ┌─────────────────────────────────┐   │
+    │  │ Algebra        │ 20 Q │ 40%    │   │
+    │  │ Calculus       │ 15 Q │ 30%    │   │
+    │  │ Trigonometry   │ 10 Q │ 20%    │   │
+    │  │ Geometry       │  5 Q │ 10%    │   │
+    │  └─────────────────────────────────┘   │
+    │                                         │
+    │  📝 Explore Concepts                    │
+    │  ┌─────────────────────────────────┐   │
+    │  │ ➤ Quadratic Equations    [8 Q]  │   │
+    │  │ ➤ Derivatives            [6 Q]  │   │
+    │  │ ➤ Integration            [4 Q]  │   │
+    │  │ ➤ Trigonometric Identity [3 Q]  │   │
+    │  │ ...                             │   │
+    │  └─────────────────────────────────┘   │
+    └─────────────────────────────────────────┘
+
+    Concept View (question_variations_concept.html)
+    ───────────────────────────────────────────────
+    ┌─────────────────────────────────────────┐
+    │  💡 Quadratic Equations                 │
+    │                                         │
+    │  Variation Patterns Identified:         │
+    │  ┌──────────────────┬─────────────┐    │
+    │  │ Different Numbers│ 3 questions │    │
+    │  │ Word Problems    │ 2 questions │    │
+    │  │ Reverse Questions│ 1 question  │    │
+    │  └──────────────────┴─────────────┘    │
+    │                                         │
+    │  All Questions (8):                     │
+    │  ┌─────────────────────────────────┐   │
+    │  │ Q1: Solve x² - 5x + 6 = 0       │   │
+    │  │ [Generate Variations]            │   │
+    │  └─────────────────────────────────┘   │
+    │  ┌─────────────────────────────────┐   │
+    │  │ Q2: Find roots of 2x² - 7x + 3  │   │
+    │  │ [Generate Variations]            │   │
+    │  └─────────────────────────────────┘   │
+    │  ...                                    │
+    └─────────────────────────────────────────┘
+
+    Variation Detail (question_variations_detail.html)
+    ──────────────────────────────────────────────────
+    ┌─────────────────────────────────────────┐
+    │  ⭐ Original Question                   │
+    │  Solve: x² - 5x + 6 = 0                │
+    │  Chapter: Algebra | Concept: Quadratic │
+    └─────────────────────────────────────────┘
+
+    ┌─────────────────────────────────────────┐
+    │  🔄 Variation 1: Different Numbers      │
+    │                                         │
+    │  📝 Question: Solve 2x² - 7x + 3 = 0    │
+    │  💡 Hint: Use quadratic formula         │
+    │  📌 Formula: x = [-b ± √(b²-4ac)]/2a   │
+    │  🪜 Steps:                              │
+    │     1. Identify a=2, b=-7, c=3          │
+    │     2. Calculate discriminant           │
+    │     3. Apply formula                    │
+    │  📊 Difficulty: Medium                  │
+    │                                         │
+    │  [Show Full Solution ▼]                 │
+    └─────────────────────────────────────────┘
+
+    ┌─────────────────────────────────────────┐
+    │  🔄 Variation 2: Reverse Question       │
+    │  ... (similar structure)                │
+    └─────────────────────────────────────────┘
+
+    ... (8 more variations)
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          TECH STACK DIAGRAM                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    ┌─────────────────────────────────────────┐
+    │           FRONTEND LAYER                │
+    │  ┌─────────────────────────────────┐   │
+    │  │ HTML5 + Jinja2 Templates        │   │
+    │  │ Bootstrap 5 + Custom CSS        │   │
+    │  │ Bootstrap Icons + Font Awesome  │   │
+    │  │ Vanilla JavaScript (minimal)    │   │
+    │  └─────────────────────────────────┘   │
+    └─────────────────────────────────────────┘
+                    ↕
+    ┌─────────────────────────────────────────┐
+    │         APPLICATION LAYER               │
+    │  ┌─────────────────────────────────┐   │
+    │  │ Flask 2.x (Python Web Framework)│   │
+    │  │ - Routes & Controllers          │   │
+    │  │ - Session Management            │   │
+    │  │ - File Upload Handling          │   │
+    │  │ - PDF Generation (ReportLab)    │   │
+    │  └─────────────────────────────────┘   │
+    └─────────────────────────────────────────┘
+                    ↕
+    ┌─────────────────────────────────────────┐
+    │          BUSINESS LOGIC LAYER           │
+    │  ┌─────────────────────────────────┐   │
+    │  │ question_generator.py            │   │
+    │  │ - analyze_math_question_bank()   │   │
+    │  │ - find_question_variations()     │   │
+    │  │ - generate_question_variations() │   │
+    │  │ - build_variation_analytics()    │   │
+    │  └─────────────────────────────────┘   │
+    │  ┌─────────────────────────────────┐   │
+    │  │ rag_pipeline.py                  │   │
+    │  │ - load_document()                │   │
+    │  │ - clean_text()                   │   │
+    │  └─────────────────────────────────┘   │
+    └─────────────────────────────────────────┘
+                    ↕
+    ┌─────────────────────────────────────────┐
+    │            AI/LLM LAYER                 │
+    │  ┌─────────────────────────────────┐   │
+    │  │ Groq API Client                  │   │
+    │  │ - Model: openai/gpt-oss-120b    │   │
+    │  │ - JSON Mode                      │   │
+    │  │ - Retry Logic                    │   │
+    │  │ - Rate Limit Handling            │   │
+    │  └─────────────────────────────────┘   │
+    └─────────────────────────────────────────┘
+                    ↕
+    ┌─────────────────────────────────────────┐
+    │          DATA/STORAGE LAYER             │
+    │  ┌─────────────────────────────────┐   │
+    │  │ Flask Session (server-side)      │   │
+    │  │ - Analytics data                 │   │
+    │  │ - Questions metadata             │   │
+    │  │ - Variations mapping             │   │
+    │  └─────────────────────────────────┘   │
+    │  ┌─────────────────────────────────┐   │
+    │  │ File System                      │   │
+    │  │ - Temporary uploads              │   │
+    │  │ - Generated PDFs                 │   │
+    │  └─────────────────────────────────┘   │
+    └─────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                            END OF DIAGRAM
+═══════════════════════════════════════════════════════════════════════════════

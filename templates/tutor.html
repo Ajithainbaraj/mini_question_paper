@@ -1,58 +1,106 @@
 {% extends "dashboard_base.html" %}
+{% set active_page = "tutor" %}
 {% block title %}AI Tutor{% endblock %}
 {% block page_title %}AI Tutor{% endblock %}
-{% block breadcrumb %}AI Tutor{% endblock %}
+{% block breadcrumb %}AI Tools &rsaquo; AI Tutor{% endblock %}
+
+{% block extra_css %}
+<style>
+  .page-layout { display: grid; grid-template-columns: 1fr 270px; gap: 24px; align-items: start; }
+  @media(max-width:900px) { .page-layout { grid-template-columns: 1fr; } }
+
+  .answer-box {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-left: 4px solid var(--primary);
+    border-radius: var(--radius-sm);
+    padding: 20px 22px;
+    font-size: 14px;
+    line-height: 1.9;
+    color: var(--text);
+    white-space: pre-wrap;
+    max-height: 480px;
+    overflow-y: auto;
+  }
+
+  .question-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--primary-bg);
+    color: var(--primary);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-{% set active_page = 'tutor' %}
-<style>
-  .two-col { display: grid; grid-template-columns: 1fr 300px; gap: 24px; align-items: start; }
-  @media(max-width:900px){ .two-col { grid-template-columns: 1fr; } }
-</style>
+<div class="page-layout">
 
-<div class="two-col">
   <div>
+    <!-- Form Card -->
     <div class="card" style="margin-bottom:20px;">
-      <div class="card-title">🤖 Ask a Concept</div>
-      {% if error %}<div class="alert alert-error">⚠️ {{ error }}</div>{% endif %}
+      <div class="card-header">
+        <div class="card-title"><i class="fas fa-robot" style="color:var(--primary);"></i> Ask a Concept</div>
+      </div>
+
+      {% if error %}
+      <div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+      {% endif %}
+
       <form method="POST" enctype="multipart/form-data">
         <div class="form-group">
-          <label>Upload Syllabus / Notes</label>
-          <input type="file" name="syllabus_file" accept=".txt,.pdf,.docx" required />
+          <label>Upload Syllabus or Notes</label>
+          <input type="file" name="syllabus_file" accept=".txt,.pdf,.docx" required/>
+          <div style="font-size:12px;color:var(--text3);margin-top:5px;">Supported: PDF, DOCX, TXT</div>
         </div>
         <div class="form-group">
-          <label>Your Concept / Question</label>
-          <div class="input-icon-wrap">
-            <textarea name="question" rows="3" placeholder="e.g. Explain the concept of process scheduling in OS" required></textarea>
-            <span class="icon">💬</span>
-          </div>
+          <label>Your Question or Concept</label>
+          <textarea name="question" rows="3" placeholder="e.g. Explain process scheduling algorithms in Operating Systems" required></textarea>
         </div>
-        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">💡 Explain Concept</button>
+        <button type="submit" class="btn btn-primary btn-lg btn-full">
+          <i class="fas fa-lightbulb"></i> Explain This Concept
+        </button>
       </form>
     </div>
+
+    <!-- Answer Card -->
     {% if answer %}
     <div class="card">
-      <div class="card-title">📖 Explanation — <span style="color:var(--accent);">{{ question }}</span></div>
-      <div class="output-box" style="border-left-color:#a855f7;">{{ answer }}</div>
+      <div class="card-header">
+        <div class="card-title"><i class="fas fa-book-open" style="color:var(--success);"></i> Explanation</div>
+        <button onclick="navigator.clipboard.writeText(this.closest('.card').querySelector('.answer-box').innerText).then(()=>this.textContent='Copied!')" class="btn btn-secondary" style="padding:6px 14px;font-size:12px;">
+          <i class="fas fa-copy"></i> Copy
+        </button>
+      </div>
+      <div class="question-tag"><i class="fas fa-question-circle"></i> {{ question }}</div>
+      <div class="answer-box">{{ answer }}</div>
     </div>
     {% endif %}
   </div>
 
-  <div style="display:flex;flex-direction:column;gap:16px;">
-    <div class="card" style="background:linear-gradient(135deg,#f59e0b,#ef4444);border:none;color:white;">
-      <div style="font-size:36px;margin-bottom:10px;">🤖</div>
-      <div style="font-size:16px;font-weight:700;margin-bottom:6px;">AI Tutor</div>
-      <div style="font-size:13px;opacity:0.9;line-height:1.6;">Get step-by-step explanations of any concept from your syllabus. Like having a personal teacher 24/7.</div>
+  <!-- Sidebar -->
+  <div>
+    <div class="card" style="background:linear-gradient(135deg,#f59e0b,#ef4444);border:none;color:white;margin-bottom:16px;">
+      <div style="font-size:32px;margin-bottom:10px;">🤖</div>
+      <h3 style="font-size:16px;font-weight:700;margin-bottom:8px;">AI Tutor</h3>
+      <p style="font-size:13px;opacity:0.9;line-height:1.6;">Like having a personal teacher available 24/7. Get clear, step-by-step explanations of any concept from your syllabus.</p>
     </div>
+
     <div class="card">
-      <div class="card-title">📌 How it works</div>
-      {% for step in ['Upload your notes', 'Type your concept', 'AI retrieves relevant content', 'Get clear explanation with examples'] %}
-      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2);">
-        <span style="width:22px;height:22px;background:var(--accent);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">{{ loop.index }}</span>
+      <div class="card-title" style="margin-bottom:14px;"><i class="fas fa-info-circle" style="color:var(--primary);"></i> How it works</div>
+      {% for step in ['Upload your notes or syllabus','Type the concept to explain','AI retrieves relevant content','Get a clear explanation with examples'] %}
+      <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2);">
+        <span style="width:22px;height:22px;background:var(--primary);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;">{{ loop.index }}</span>
         {{ step }}
       </div>
       {% endfor %}
     </div>
   </div>
+
 </div>
 {% endblock %}

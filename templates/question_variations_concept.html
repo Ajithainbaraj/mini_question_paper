@@ -1,0 +1,128 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}{{ concept }} - Variations{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('question_variations', show='current') }}">Question Variations</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ concept }}</li>
+                </ol>
+            </nav>
+            
+            <h2 class="mb-3">
+                <i class="bi bi-mortarboard"></i> {{ concept }}
+            </h2>
+            <p class="text-muted">
+                Analyzing how this concept appears in different question formats
+            </p>
+        </div>
+    </div>
+
+    <!-- Variation Pattern Summary -->
+    {% if variations and variations.pattern_summary %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <strong>📊 Pattern Summary:</strong> {{ variations.pattern_summary }}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Variation Types Found -->
+    {% if variations and variations.variation_types %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">🔄 Variation Types Identified</h5>
+                    <div class="row g-3">
+                        {% for vtype in variations.variation_types %}
+                        <div class="col-md-6">
+                            <div class="card border-primary h-100">
+                                <div class="card-header bg-primary text-white">
+                                    <strong>{{ vtype.type }}</strong>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">{{ vtype.description }}</p>
+                                    <p class="mb-0">
+                                        <span class="badge bg-secondary">
+                                            {{ vtype.question_ids|length }} questions
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Questions List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">
+                        📝 All Questions for This Concept ({{ questions|length }})
+                    </h5>
+                    
+                    {% for question in questions %}
+                    <div class="card mb-3 border">
+                        <div class="card-header bg-light">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <strong>Question #{{ question.id }}</strong>
+                                    <span class="badge bg-info ms-2">{{ question.chapter }}</span>
+                                    <span class="badge bg-warning ms-1">{{ question.difficulty }}</span>
+                                    <span class="badge bg-secondary ms-1">{{ question.pattern_type }}</span>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <a href="{{ url_for('question_variations_generate', question_id=question.id) }}" 
+                                       class="btn btn-sm btn-primary">
+                                        <i class="bi bi-diagram-3"></i> Generate Variations
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-2"><strong>Question:</strong> {{ question.question }}</p>
+                            <hr>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <small class="text-muted">
+                                        <strong>📐 Formula:</strong> {{ question.formula }}
+                                    </small>
+                                </div>
+                                <div class="col-md-6">
+                                    <small class="text-muted">
+                                        <strong>🔑 Keywords:</strong> {{ question.keywords|join(', ') }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <a href="{{ url_for('question_variations', show='current') }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

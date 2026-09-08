@@ -1,60 +1,75 @@
 {% extends "dashboard_base.html" %}
+{% set active_page = "revision" %}
 {% block title %}Revision Notes{% endblock %}
 {% block page_title %}Revision Notes{% endblock %}
-{% block breadcrumb %}Revision Notes{% endblock %}
+{% block breadcrumb %}AI Tools &rsaquo; Revision Notes{% endblock %}
+
+{% block extra_css %}
+<style>
+  .page-layout { display: grid; grid-template-columns: 1fr 270px; gap: 24px; align-items: start; }
+  @media(max-width:900px) { .page-layout { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
 
 {% block content %}
-{% set active_page = 'revision' %}
-<style>
-  .two-col { display: grid; grid-template-columns: 1fr 300px; gap: 24px; align-items: start; }
-  @media(max-width:900px){ .two-col { grid-template-columns: 1fr; } }
-</style>
+<div class="page-layout">
 
-<div class="two-col">
   <div>
     <div class="card" style="margin-bottom:20px;">
-      <div class="card-title">📝 Generate Revision Notes</div>
-      {% if error %}<div class="alert alert-error">⚠️ {{ error }}</div>{% endif %}
+      <div class="card-header">
+        <div class="card-title"><i class="fas fa-book-open" style="color:var(--primary);"></i> Generate Revision Notes</div>
+      </div>
+
+      {% if error %}
+      <div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+      {% endif %}
+
       <form method="POST" enctype="multipart/form-data">
         <div class="form-group">
-          <label>Upload Syllabus / Notes</label>
-          <input type="file" name="syllabus_file" accept=".txt,.pdf,.docx" required />
+          <label>Upload Syllabus or Notes</label>
+          <input type="file" name="syllabus_file" accept=".txt,.pdf,.docx" required/>
+          <div style="font-size:12px;color:var(--text3);margin-top:5px;">Supported: PDF, DOCX, TXT</div>
         </div>
         <div class="form-group">
           <label>Topic for Revision Notes</label>
-          <div class="input-icon-wrap">
-            <input type="text" name="topic" placeholder="e.g. Game Engine Architecture, Deadlocks in OS" required />
-            <span class="icon">🔍</span>
-          </div>
+          <input type="text" name="topic" placeholder="e.g. Deadlocks in OS, Binary Search Trees" required/>
         </div>
-        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">📝 Generate Notes</button>
+        <button type="submit" class="btn btn-primary btn-lg btn-full">
+          <i class="fas fa-file-alt"></i> Generate Notes
+        </button>
       </form>
     </div>
+
     {% if notes %}
     <div class="card">
-      <div class="card-title">📋 Notes — <span style="color:#10b981;">{{ topic }}</span></div>
-      <div class="output-box" style="border-left-color:#10b981;background:rgba(16,185,129,0.04);">{{ notes }}</div>
-      <div style="margin-top:14px;">
-        <button onclick="navigator.clipboard.writeText(document.querySelector('.output-box').innerText).then(()=>alert('Copied!'))" class="btn btn-secondary">📋 Copy Notes</button>
+      <div class="card-header">
+        <div class="card-title"><i class="fas fa-sticky-note" style="color:var(--success);"></i> Revision Notes — <span style="color:var(--primary);">{{ topic }}</span></div>
+        <button onclick="navigator.clipboard.writeText(document.querySelector('.output-box').innerText).then(()=>this.textContent='Copied!')" class="btn btn-secondary" style="padding:6px 14px;font-size:12px;">
+          <i class="fas fa-copy"></i> Copy
+        </button>
       </div>
+      <div class="output-box">{{ notes }}</div>
     </div>
     {% endif %}
   </div>
 
-  <div style="display:flex;flex-direction:column;gap:16px;">
-    <div class="card" style="background:linear-gradient(135deg,#ec4899,#8b5cf6);border:none;color:white;">
-      <div style="font-size:36px;margin-bottom:10px;">📝</div>
-      <div style="font-size:16px;font-weight:700;margin-bottom:6px;">Smart Notes</div>
-      <div style="font-size:13px;opacity:0.9;line-height:1.6;">Concise, exam-focused bullet-point notes with key concepts, definitions, formulas, and keywords.</div>
+  <!-- Sidebar -->
+  <div>
+    <div class="card" style="background:linear-gradient(135deg,#ec4899,#8b5cf6);border:none;color:white;margin-bottom:16px;">
+      <div style="font-size:32px;margin-bottom:10px;">📝</div>
+      <h3 style="font-size:16px;font-weight:700;margin-bottom:8px;">Smart Notes</h3>
+      <p style="font-size:13px;opacity:0.9;line-height:1.6;">Concise, exam-focused bullet-point notes from your own syllabus. Save hours of manual note-making.</p>
     </div>
+
     <div class="card">
-      <div class="card-title">✅ Notes include</div>
-      {% for item in ['Key Concepts', 'Important Definitions', 'Formulas (if applicable)', 'Important Facts', 'Keywords'] %}
-      <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2);">
-        <span style="color:#10b981;font-weight:700;">✓</span> {{ item }}
+      <div class="card-title" style="margin-bottom:14px;"><i class="fas fa-check-circle" style="color:var(--success);"></i> Notes include</div>
+      {% for item in ['Key Concepts','Important Definitions','Formulas (if applicable)','Important Facts','Keywords & mnemonics'] %}
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2);">
+        <i class="fas fa-check" style="color:var(--success);font-size:11px;flex-shrink:0;"></i> {{ item }}
       </div>
       {% endfor %}
     </div>
   </div>
+
 </div>
 {% endblock %}

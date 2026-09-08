@@ -1,10 +1,13 @@
 import os
 import io
 import uuid
+import json
+import hashlib
 
 from flask import Flask, request, render_template, send_file, session, redirect, url_for
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+from authlib.integrations.flask_client import OAuth
 
 from rag_pipeline import process_syllabus, get_context_for_query
 from question_generator import (
@@ -15,6 +18,14 @@ from question_generator import (
     generate_revision_notes,
     generate_full_mock_test,
     evaluate_full_mock_test,
+    extract_questions_from_paper,
+    classify_questions_to_chapters,
+    build_chapter_analysis,
+    fetch_exam_pattern,
+    analyze_math_question_bank,
+    find_question_variations,
+    generate_question_variations,
+    build_variation_analytics,
 )
 
 app = Flask(__name__)
@@ -26,11 +37,54 @@ app.config["VECTOR_STORE"] = "vector_store"
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 os.makedirs(app.config["PAPERS_FOLDER"], exist_ok=True)
 
-# ── Simple credentials (change as needed) ────────────────────────────────────
-USERS = {
-    "admin": "admin123",
-    "student": "student123",
-}
+# ── OAuth setup ───────────────────────────────────────────────────────────────
+oauth = OAuth(app)
+
+oauth.register(
+    name="google",
+    client_id=os.environ.get("GOOGLE_CLIENT_ID"),
+    client_secret=os.environ.get("GOOGLE_CLIENT_SECRET"),
+    server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+    client_kwargs={"scope": "openid email profile"},
+)
+
+oauth.register(
+    name="github",
+    client_id=os.environ.get("GITHUB_CLIENT_ID"),
+    client_secret=os.environ.get("GITHUB_CLIENT_SECRET"),
+    access_token_url="https://github.com/login/oauth/access_token",
+    authorize_url="https://github.com/login/oauth/authorize",
+    api_base_url="https://api.github.com/",
+    client_kwargs={"scope": "user:email"},
+)
+
+# ── Persistent user store (JSON file) ────────────────────────────────────────
+USERS_FILE = "users.json"
+
+def _load_users() -> dict:
+    if os.path.exists(USERS_FILE):
+        try:
+            with open(USERS_FILE, "r") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    # Seed default accounts on first run
+    defaults = {
+        "admin":   _hash_pw("admin123"),
+        "student": _hash_pw("student123"),
+    }
+    _save_users(defaults)
+    return defaults
+
+def _save_users(users: dict):
+    with open(USERS_FILE, "w") as f:
+        json.dump(users, f)
+
+def _hash_pw(password: str) -> str:
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def _check_pw(password: str, hashed: str) -> bool:
+    return _hash_pw(password) == hashed
 
 def login_required(f):
     from functools import wraps
@@ -121,7 +175,8 @@ def login():
     if request.method == "POST":
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "")
-        if USERS.get(username) == password:
+        users = _load_users()
+        if username in users and _check_pw(password, users[username]):
             session["logged_in"] = True
             session["username"] = username
             return redirect(url_for("home"))
@@ -145,19 +200,75 @@ def register():
         password = request.form.get("password", "")
         confirm  = request.form.get("confirm_password", "")
 
+        users = _load_users()
         if not fullname or not username or not password:
             error = "All fields are required."
-        elif username in USERS:
+        elif username in users:
             error = "Username already exists. Please choose another."
         elif password != confirm:
             error = "Passwords do not match."
         elif len(password) < 6:
             error = "Password must be at least 6 characters."
         else:
-            USERS[username] = password
+            users[username] = _hash_pw(password)
+            _save_users(users)
             return redirect(url_for("login") + "?registered=1")
 
     return render_template("register.html", error=error, success=success)
+
+
+# ── Google OAuth ──────────────────────────────────────────────────────────────
+@app.route("/login/google")
+def login_google():
+    redirect_uri = url_for("auth_google", _external=True)
+    return oauth.google.authorize_redirect(redirect_uri)
+
+@app.route("/auth/google")
+def auth_google():
+    try:
+        token = oauth.google.authorize_access_token()
+        userinfo = token.get("userinfo") or oauth.google.userinfo()
+        email = userinfo.get("email", "")
+        name  = userinfo.get("name", email.split("@")[0])
+        username = f"google_{email.replace('@','_').replace('.','_')}"
+
+        users = _load_users()
+        if username not in users:
+            users[username] = _hash_pw(uuid.uuid4().hex)  # random pw, OAuth only
+            _save_users(users)
+
+        session["logged_in"] = True
+        session["username"] = name or username
+        return redirect(url_for("home"))
+    except Exception as e:
+        return render_template("login.html", error=f"Google login failed: {str(e)[:100]}")
+
+
+# ── GitHub OAuth ──────────────────────────────────────────────────────────────
+@app.route("/login/github")
+def login_github():
+    redirect_uri = url_for("auth_github", _external=True)
+    return oauth.github.authorize_redirect(redirect_uri)
+
+@app.route("/auth/github")
+def auth_github():
+    try:
+        token = oauth.github.authorize_access_token()
+        resp = oauth.github.get("user", token=token)
+        profile = resp.json()
+        username = f"github_{profile.get('login', uuid.uuid4().hex)}"
+        display  = profile.get("name") or profile.get("login") or username
+
+        users = _load_users()
+        if username not in users:
+            users[username] = _hash_pw(uuid.uuid4().hex)
+            _save_users(users)
+
+        session["logged_in"] = True
+        session["username"] = display
+        return redirect(url_for("home"))
+    except Exception as e:
+        return render_template("login.html", error=f"GitHub login failed: {str(e)[:100]}")
 
 # 1b. DEDICATED PAPERS PAGE
 @app.route("/papers", methods=["GET", "POST"])
@@ -478,7 +589,509 @@ def fulltest_submit():
                            test_data=test_data)
 
 
+# ── CHAPTER ANALYZER ─────────────────────────────────────────────────────────
+@app.route("/chapter-analyzer", methods=["GET", "POST"])
+@login_required
+def chapter_analyzer():
+    analysis = None
+    error = None
+
+    if request.method == "POST":
+        # Clear any previous analysis from session before starting new one
+        session.pop("chapter_analysis", None)
+        session.pop("chapter_analysis_id", None)
+        
+        syllabus_file  = request.files.get("syllabus_file")
+        paper_file     = request.files.get("paper_file")
+
+        if not syllabus_file or syllabus_file.filename == "":
+            error = "Please upload a syllabus file."
+        elif not paper_file or paper_file.filename == "":
+            error = "Please upload a question paper file."
+        else:
+            # Generate unique analysis ID
+            analysis_id = str(uuid.uuid4())
+            
+            syl_path   = os.path.join(app.config["UPLOAD_FOLDER"], f"syl_{analysis_id}_{syllabus_file.filename}")
+            paper_path = os.path.join(app.config["UPLOAD_FOLDER"], f"paper_{analysis_id}_{paper_file.filename}")
+            syllabus_file.save(syl_path)
+            paper_file.save(paper_path)
+
+            try:
+                # 1. Build vector store from syllabus with unique ID
+                store_dir = os.path.join(app.config["VECTOR_STORE"], f"analyzer_{analysis_id}")
+                process_syllabus(syl_path, store_dir)
+
+                # 2. Load syllabus chunks for chapter classification
+                from rag_pipeline import load_vector_store as _lv
+                _, syllabus_chunks = _lv(store_dir)
+
+                # 3. Extract text from question paper
+                from rag_pipeline import load_document, clean_text
+                paper_text = load_document(paper_path)
+
+                # 4. Extract individual questions using LLM
+                questions = extract_questions_from_paper(paper_text)
+                if not questions:
+                    error = "Could not extract questions from the paper. Please ensure it is a readable PDF/text file."
+                else:
+                    # 5. Classify questions to chapters using syllabus
+                    classified = classify_questions_to_chapters(questions, syllabus_chunks)
+
+                    # 6. Build analytics
+                    analysis = build_chapter_analysis(classified)
+                    
+                    # Store with unique ID in session
+                    session["chapter_analysis"] = analysis
+                    session["chapter_analysis_id"] = analysis_id
+
+            except Exception as e:
+                error = f"Analysis failed: {str(e)[:200]}"
+            finally:
+                # Clean up temporary files
+                for p in [syl_path, paper_path]:
+                    if os.path.exists(p):
+                        os.remove(p)
+                
+                # Clean up vector store directory if analysis failed
+                if error and store_dir and os.path.exists(store_dir):
+                    import shutil
+                    shutil.rmtree(store_dir, ignore_errors=True)
+
+    else:
+        # GET request - check if we should show previous analysis or clean form
+        # Only restore analysis if explicitly requested via query param
+        if request.args.get("show") == "current":
+            analysis = session.get("chapter_analysis")
+        else:
+            # Clean state for new analysis
+            pass
+
+    return render_template("chapter_analyzer.html", analysis=analysis, error=error)
+
+
+@app.route("/chapter-analyzer/new", methods=["GET"])
+@login_required
+def chapter_analyzer_new():
+    """Clear session and start a new analysis."""
+    session.pop("chapter_analysis", None)
+    session.pop("chapter_analysis_id", None)
+    return redirect(url_for("chapter_analyzer"))
+
+
+@app.route("/chapter-analyzer/current", methods=["GET"])
+@login_required
+def chapter_analyzer_current():
+    """View current analysis results."""
+    return redirect(url_for("chapter_analyzer", show="current"))
+
+
+@app.route("/chapter-analyzer/download-report")
+@login_required
+def chapter_analyzer_report():
+    """Generate and download a PDF analysis report."""
+    analysis = session.get("chapter_analysis")
+    if not analysis:
+        return "No analysis in session.", 400
+
+    buffer = io.BytesIO()
+    pdf    = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+    y = height - 50
+    margin = 50
+    lh = 16
+
+    def write_line(text, bold=False, indent=0, size=11):
+        nonlocal y
+        if y < 70:
+            pdf.showPage()
+            pdf.setFont("Times-Bold" if bold else "Times-Roman", size)
+            y = height - 50
+        pdf.setFont("Times-Bold" if bold else "Times-Roman", size)
+        pdf.drawString(margin + indent, y, text[:110])
+        y -= lh
+
+    write_line("CHAPTER-WISE QUESTION PAPER ANALYSIS REPORT", bold=True, size=14)
+    write_line("=" * 70)
+    y -= 6
+
+    write_line("SUMMARY", bold=True, size=12)
+    write_line(f"  Total Questions   : {analysis['total_questions']}")
+    write_line(f"  Total Chapters    : {analysis['total_chapters']}")
+    write_line(f"  Most Asked Chapter: {analysis['most_asked_chapter']}")
+    write_line(f"  Least Asked Chapter: {analysis['least_asked_chapter']}")
+    y -= 10
+
+    write_line("CHAPTER-WISE DISTRIBUTION", bold=True, size=12)
+    write_line("-" * 60)
+    for ch in analysis["chapters"]:
+        pct = round(ch["count"] / analysis["total_questions"] * 100, 1) if analysis["total_questions"] else 0
+        write_line(f"  {ch['chapter'][:50]:<50} {ch['count']} Q  ({pct}%)")
+    y -= 10
+
+    write_line("SUBJECT DISTRIBUTION", bold=True, size=12)
+    write_line("-" * 60)
+    for sub in analysis["subjects"]:
+        pct = round(sub["count"] / analysis["total_questions"] * 100, 1) if analysis["total_questions"] else 0
+        write_line(f"  {sub['subject']:<40} {sub['count']} Q  ({pct}%)")
+    y -= 10
+
+    write_line("COMPLETE QUESTION MAPPING", bold=True, size=12)
+    write_line("-" * 60)
+    for q in analysis["questions"]:
+        write_line(f"  Q{q['question_no']}  [{q['subject']} › {q['chapter']}]", bold=True)
+        # wrap question text
+        words = q["question"].split()
+        line = "     "
+        for w in words:
+            if len(line) + len(w) + 1 > 100:
+                write_line(line)
+                line = "     " + w + " "
+            else:
+                line += w + " "
+        if line.strip():
+            write_line(line)
+        y -= 4
+
+    pdf.save()
+    buffer.seek(0)
+    return send_file(buffer, as_attachment=True,
+                     download_name="Chapter_Analysis_Report.pdf",
+                     mimetype="application/pdf")
+
+
+# ── EXAM PATTERN ─────────────────────────────────────────────────────────────
+@app.route("/exam-pattern", methods=["GET", "POST"])
+@login_required
+def exam_pattern():
+    pattern = None
+    error   = None
+    query   = ""
+
+    if request.method == "POST":
+        query = request.form.get("query", "").strip()
+        if not query:
+            error = "Please enter an exam name or query."
+        else:
+            try:
+                pattern = fetch_exam_pattern(query)
+                if pattern.get("error"):
+                    error   = pattern["error"]
+                    pattern = None
+                else:
+                    session["exam_pattern"] = pattern
+                    session["exam_query"]   = query
+            except Exception as e:
+                error = f"Could not fetch exam pattern: {str(e)[:150]}"
+
+    # Restore from session on GET if available
+    if request.method == "GET":
+        pattern = session.get("exam_pattern")
+        query   = session.get("exam_query", "")
+
+    return render_template("exam_pattern.html", pattern=pattern, error=error, query=query)
+
+
+@app.route("/exam-pattern/clear")
+@login_required
+def exam_pattern_clear():
+    session.pop("exam_pattern", None)
+    session.pop("exam_query", None)
+    return redirect(url_for("exam_pattern"))
+
+
+@app.route("/exam-pattern/download")
+@login_required
+def exam_pattern_download():
+    """Download exam pattern blueprint as PDF."""
+    pattern = session.get("exam_pattern")
+    if not pattern:
+        return "No pattern in session.", 400
+
+    buffer = io.BytesIO()
+    pdf    = canvas.Canvas(buffer, pagesize=letter)
+    w, h   = letter
+    y      = h - 50
+    margin = 50
+    lh     = 15
+
+    def ln(text, bold=False, size=11, indent=0):
+        nonlocal y
+        if y < 70:
+            pdf.showPage()
+            y = h - 50
+        pdf.setFont("Times-Bold" if bold else "Times-Roman", size)
+        pdf.drawString(margin + indent, y, str(text)[:100])
+        y -= lh
+
+    ln("EXAM PATTERN BLUEPRINT — EduAI", bold=True, size=14)
+    ln("=" * 65)
+    y -= 4
+
+    ln(f"Exam  : {pattern.get('exam_name','')}", bold=True, size=12)
+    ln(f"Body  : {pattern.get('conducting_body','')}")
+    ln(f"Year  : {pattern.get('year','')}  |  Level: {pattern.get('level','')}")
+    ln(f"Mode  : {pattern.get('exam_mode','')}  |  Duration: {pattern.get('duration_minutes','')} minutes")
+    ln(f"Marks : {pattern.get('total_marks','')}  |  Questions: {pattern.get('total_questions','')}")
+    ln(f"Negative Marking: {pattern.get('negative_marking','')}")
+    y -= 6
+
+    if pattern.get("exam_stages"):
+        ln("EXAM STAGES", bold=True)
+        for s in pattern["exam_stages"]:
+            ln(f"  • {s}", indent=8)
+        y -= 4
+
+    ln("SECTION-WISE BREAKDOWN", bold=True)
+    ln("-" * 60)
+    for sec in pattern.get("sections", []):
+        ln(f"  {sec.get('name',''):<30} {sec.get('questions','')} Q   {sec.get('marks','')} Marks", indent=8)
+    y -= 6
+
+    if pattern.get("important_notes"):
+        ln("IMPORTANT NOTES", bold=True)
+        for note in pattern["important_notes"]:
+            ln(f"  • {note}", indent=8)
+        y -= 4
+
+    if pattern.get("preparation_tips"):
+        ln("PREPARATION TIPS", bold=True)
+        for tip in pattern["preparation_tips"]:
+            ln(f"  → {tip}", indent=8)
+        y -= 4
+
+    ln(f"Source: {pattern.get('official_source','')}")
+
+    pdf.save()
+    buffer.seek(0)
+    safe_name = "".join(c if c.isalnum() or c in " _-" else "_" for c in pattern.get("exam_name", "Exam"))
+    return send_file(buffer, as_attachment=True,
+                     download_name=f"{safe_name}_Blueprint.pdf",
+                     mimetype="application/pdf")
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# ── MATH QUESTION VARIATION FINDER ────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+
+@app.route("/question-variations", methods=["GET", "POST"])
+@login_required
+def question_variations():
+    """Main page for Math Question Variation Finder."""
+    analytics = None
+    error = None
+    
+    if request.method == "POST":
+        # Clear previous session data
+        session.pop("variation_analytics", None)
+        session.pop("variation_questions", None)
+        session.pop("variations_map", None)
+        
+        question_bank_file = request.files.get("question_bank_file")
+        
+        if not question_bank_file or question_bank_file.filename == "":
+            error = "Please upload a mathematics question bank file."
+        else:
+            file_path = os.path.join(app.config["UPLOAD_FOLDER"], f"qbank_{uuid.uuid4()}_{question_bank_file.filename}")
+            question_bank_file.save(file_path)
+            
+            try:
+                # Load and read the question bank
+                from rag_pipeline import load_document
+                question_bank_text = load_document(file_path)
+                
+                # Step 1: Analyze all questions
+                analyzed_data = analyze_math_question_bank(question_bank_text)
+                questions = analyzed_data.get("questions", [])
+                
+                if not questions:
+                    error = "Could not extract questions from the file. Please ensure it contains mathematics questions."
+                else:
+                    # Step 2: Find variations
+                    variations_map = find_question_variations(questions)
+                    
+                    # Step 3: Build analytics
+                    analytics = build_variation_analytics(questions, variations_map)
+                    
+                    # Store in session
+                    session["variation_analytics"] = analytics
+                    session["variation_questions"] = questions
+                    session["variations_map"] = variations_map
+                    
+            except Exception as e:
+                error = f"Analysis failed: {str(e)[:200]}"
+            finally:
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+    else:
+        # GET request - restore from session if available
+        if request.args.get("show") == "current":
+            analytics = session.get("variation_analytics")
+    
+    return render_template("question_variations.html", analytics=analytics, error=error)
+
+
+@app.route("/question-variations/concept/<concept_name>")
+@login_required
+def question_variations_concept(concept_name):
+    """View all questions and variations for a specific concept."""
+    questions = session.get("variation_questions", [])
+    variations_map = session.get("variations_map", {})
+    
+    # Filter questions by concept
+    concept_questions = [q for q in questions if q.get("concept") == concept_name]
+    concept_variations = variations_map.get(concept_name, {})
+    
+    return render_template("question_variations_concept.html",
+                          concept=concept_name,
+                          questions=concept_questions,
+                          variations=concept_variations)
+
+
+@app.route("/question-variations/generate/<int:question_id>")
+@login_required
+def question_variations_generate(question_id):
+    """Generate all 10 variations for a specific question."""
+    questions = session.get("variation_questions", [])
+    
+    # Find the question
+    original_question = next((q for q in questions if q.get("id") == question_id), None)
+    
+    if not original_question:
+        return "Question not found.", 404
+    
+    # Generate variations
+    variations = generate_question_variations(original_question, num_variations=10)
+    
+    return render_template("question_variations_detail.html",
+                          original=original_question,
+                          variations=variations)
+
+
+@app.route("/question-variations/filter")
+@login_required
+def question_variations_filter():
+    """Filter questions by chapter, concept, difficulty, or pattern."""
+    questions = session.get("variation_questions", [])
+    analytics = session.get("variation_analytics", {})
+    
+    # Get filter params
+    chapter = request.args.get("chapter")
+    concept = request.args.get("concept")
+    difficulty = request.args.get("difficulty")
+    pattern = request.args.get("pattern")
+    
+    # Apply filters
+    filtered = questions
+    if chapter:
+        filtered = [q for q in filtered if q.get("chapter") == chapter]
+    if concept:
+        filtered = [q for q in filtered if q.get("concept") == concept]
+    if difficulty:
+        filtered = [q for q in filtered if q.get("difficulty") == difficulty]
+    if pattern:
+        filtered = [q for q in filtered if q.get("pattern_type") == pattern]
+    
+    return render_template("question_variations_filtered.html",
+                          questions=filtered,
+                          analytics=analytics,
+                          filters={
+                              "chapter": chapter,
+                              "concept": concept,
+                              "difficulty": difficulty,
+                              "pattern": pattern
+                          })
+
+
+@app.route("/question-variations/download-report")
+@login_required
+def question_variations_download():
+    """Download variation analysis report as PDF."""
+    analytics = session.get("variation_analytics")
+    if not analytics:
+        return "No analysis in session.", 400
+    
+    buffer = io.BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=letter)
+    w, h = letter
+    y = h - 50
+    margin = 50
+    lh = 15
+    
+    def ln(text, bold=False, size=11, indent=0):
+        nonlocal y
+        if y < 70:
+            pdf.showPage()
+            y = h - 50
+        pdf.setFont("Times-Bold" if bold else "Times-Roman", size)
+        pdf.drawString(margin + indent, y, str(text)[:100])
+        y -= lh
+    
+    ln("MATHEMATICS QUESTION VARIATION ANALYSIS REPORT", bold=True, size=14)
+    ln("=" * 70)
+    y -= 6
+    
+    ln("SUMMARY", bold=True, size=12)
+    ln(f"  Total Questions Analyzed   : {analytics['total_questions']}")
+    ln(f"  Total Concepts Found       : {analytics['total_concepts']}")
+    ln(f"  Total Chapters             : {analytics['total_chapters']}")
+    ln(f"  Most Repeated Concept      : {analytics['most_repeated_concept']} ({analytics['most_repeated_count']} Q)")
+    ln(f"  Most Common Pattern        : {analytics['most_common_pattern']} ({analytics['most_common_pattern_count']} Q)")
+    ln(f"  Total Possible Variations  : {analytics['total_possible_variations']}")
+    y -= 10
+    
+    ln("CHAPTER DISTRIBUTION", bold=True, size=12)
+    ln("-" * 60)
+    for ch, count in sorted(analytics['chapters'].items(), key=lambda x: x[1], reverse=True):
+        pct = round(count / analytics['total_questions'] * 100, 1) if analytics['total_questions'] else 0
+        ln(f"  {ch[:45]:<45} {count} Q  ({pct}%)")
+    y -= 10
+    
+    ln("CONCEPT DISTRIBUTION (Top 15)", bold=True, size=12)
+    ln("-" * 60)
+    sorted_concepts = sorted(analytics['concepts'].items(), key=lambda x: x[1], reverse=True)[:15]
+    for concept, count in sorted_concepts:
+        pct = round(count / analytics['total_questions'] * 100, 1) if analytics['total_questions'] else 0
+        ln(f"  {concept[:45]:<45} {count} Q  ({pct}%)")
+    y -= 10
+    
+    ln("QUESTION PATTERN DISTRIBUTION", bold=True, size=12)
+    ln("-" * 60)
+    for pattern, count in sorted(analytics['patterns'].items(), key=lambda x: x[1], reverse=True):
+        pct = round(count / analytics['total_questions'] * 100, 1) if analytics['total_questions'] else 0
+        ln(f"  {pattern[:45]:<45} {count} Q  ({pct}%)")
+    y -= 10
+    
+    ln("DIFFICULTY DISTRIBUTION", bold=True, size=12)
+    ln("-" * 60)
+    for diff, count in analytics['difficulties'].items():
+        pct = round(count / analytics['total_questions'] * 100, 1) if analytics['total_questions'] else 0
+        ln(f"  {diff:<45} {count} Q  ({pct}%)")
+    y -= 10
+    
+    ln("VARIATION TYPE FREQUENCY", bold=True, size=12)
+    ln("-" * 60)
+    for vtype, count in sorted(analytics['variation_type_frequency'].items(), key=lambda x: x[1], reverse=True):
+        ln(f"  {vtype[:45]:<45} {count} instances")
+    
+    pdf.save()
+    buffer.seek(0)
+    return send_file(buffer, as_attachment=True,
+                    download_name="Question_Variation_Analysis.pdf",
+                    mimetype="application/pdf")
+
+
+@app.route("/question-variations/new")
+@login_required
+def question_variations_new():
+    """Clear session and start new analysis."""
+    session.pop("variation_analytics", None)
+    session.pop("variation_questions", None)
+    session.pop("variations_map", None)
+    return redirect(url_for("question_variations"))
+
+
 # ── MAIN ─────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run(host="0.0.0.0", port=port, debug=False, use_reloader=False)

@@ -13,6 +13,9 @@ A full-stack web application that uses **Retrieval-Augmented Generation (RAG)** 
 | 🤖 **AI Tutor**          | Step-by-step concept explanations based on your notes                    |
 | 📝 **Revision Notes**    | Concise bullet-point exam-focused notes for any topic                    |
 | 🧪 **Full Mock Test**    | Attempt a test, get AI-scored results, analytics & recommendations       |
+| 📊 **Chapter Analyzer**  | Analyze question papers and map questions to syllabus chapters           |
+| 🎯 **Exam Pattern**      | Get official exam pattern blueprints for any competitive exam            |
+| 🧠 **Question Variations** | **NEW!** Analyze how SAME math concepts appear in DIFFERENT exam formats |
 
 ---
 
@@ -21,7 +24,7 @@ A full-stack web application that uses **Retrieval-Augmented Generation (RAG)** 
 | Layer            | Technology                                   |
 | ---------------- | -------------------------------------------- |
 | Backend          | Python, Flask                                |
-| LLM              | Groq API — `llama-3.3-70b-versatile`         |
+| LLM              | Groq API — `openai/gpt-oss-120b`             |
 | Embeddings       | `sentence-transformers` — `all-MiniLM-L6-v2` |
 | Vector DB        | FAISS (local, CPU)                           |
 | Document Parsing | PyPDF2, python-docx                          |
@@ -138,6 +141,12 @@ You can also register a new account from the login page.
 │   ├── fulltest.html
 │   ├── fulltest_questions.html
 │   ├── fulltest_result.html
+│   ├── chapter_analyzer.html
+│   ├── exam_pattern.html
+│   ├── question_variations.html         # NEW: Question Variations dashboard
+│   ├── question_variations_concept.html # NEW: Concept detail view
+│   ├── question_variations_detail.html  # NEW: Full variations display
+│   ├── question_variations_filtered.html # NEW: Filtered results
 │   └── result.html
 ├── uploads/                      # Temp file storage (auto-deleted)
 ├── papers/                       # Generated papers (UUID-named)
@@ -170,6 +179,53 @@ tf-keras
 - Each paper is stored with a **UUID** to prevent session conflicts
 - `.env` is excluded from version control via `.gitignore`
 - Passwords are stored in-memory (for demo — use a database for production)
+
+---
+
+## 🧠 Question Variations Feature (NEW!)
+
+The **Question Variations Finder** is an advanced feature that helps students understand how the SAME mathematical concept can appear in DIFFERENT ways in actual exams.
+
+### Key Capabilities:
+
+1. **Semantic Analysis** - Uses AI to identify underlying mathematical concepts, not just keyword matching
+2. **10 Variation Types** - Generates Different Numbers, Reverse Questions, Word Problems, Applications, Multi-step, and more
+3. **Comprehensive Analytics** - Chapter distribution, concept frequency, pattern analysis
+4. **Interactive Filtering** - Filter by chapter, concept, difficulty, or pattern type
+5. **Detailed Solutions** - Hints, formulas, step-by-step solving approaches, and full solutions
+
+### How It Works:
+
+```
+Upload Math Question Bank
+        ↓
+AI extracts questions and identifies:
+  - Chapter (Algebra, Calculus, etc.)
+  - Concept (Quadratic Equations, Derivatives, etc.)
+  - Formula/Theorem
+  - Question Pattern
+  - Difficulty Level
+        ↓
+Groups questions by semantic similarity
+        ↓
+Identifies how concepts vary across questions
+        ↓
+Generates 10 types of variations for each pattern
+```
+
+### Example:
+
+**Original:** Solve x² - 5x + 6 = 0
+
+**Variations Generated:**
+- Different Numbers: 2x² - 7x + 3 = 0
+- Reverse Question: Form equation with roots 2 and 3
+- Word Problem: A garden's length is 5m more than width...
+- Application: Ball thrown upward follows path h(t) = -5t² + 20t + 2...
+- Multi-step: Find α² + β² if α, β are roots...
+- And 5 more variations!
+
+See [QUESTION_VARIATIONS_README.md](QUESTION_VARIATIONS_README.md) for complete documentation.
 
 ---
 

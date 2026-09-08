@@ -1,0 +1,646 @@
+{% extends "dashboard_base.html" %}
+{% set active_page = "exam_pattern" %}
+{% block title %}Exam Pattern{% endblock %}
+{% block page_title %}Exam Pattern & Blueprint{% endblock %}
+{% block breadcrumb %}AI Tools &rsaquo; Exam Pattern{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ── search form ── */
+  .search-hero {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    border-radius: var(--radius);
+    padding: 32px 36px;
+    color: white;
+    margin-bottom: 28px;
+  }
+  .search-hero h2 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+  .search-hero p  { font-size: 14px; opacity: 0.82; margin-bottom: 22px; }
+
+  .search-row {
+    display: flex;
+    gap: 12px;
+  }
+
+  .search-input {
+    flex: 1;
+    padding: 13px 18px;
+    border-radius: var(--radius-sm);
+    border: 2px solid rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.12);
+    color: white;
+    font-size: 15px;
+    font-family: inherit;
+    outline: none;
+    backdrop-filter: blur(6px);
+    transition: var(--transition);
+  }
+  .search-input::placeholder { color: rgba(255,255,255,0.55); }
+  .search-input:focus { border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.18); }
+
+  .search-btn {
+    padding: 13px 28px;
+    background: white;
+    color: var(--primary-dark);
+    font-weight: 700;
+    font-size: 14px;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: var(--transition);
+    font-family: inherit;
+    white-space: nowrap;
+  }
+  .search-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,0.15); }
+
+  .examples {
+    margin-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .ex-chip {
+    padding: 5px 14px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.85);
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .ex-chip:hover { background: rgba(255,255,255,0.22); }
+
+  /* ── loading ── */
+  .loading-bar {
+    display: none;
+    width: 100%;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .loading-bar.show { display: block; }
+  .loading-bar::after {
+    content: '';
+    display: block;
+    height: 100%;
+    width: 40%;
+    background: var(--primary);
+    border-radius: 2px;
+    animation: slide 1.2s ease-in-out infinite;
+  }
+  @keyframes slide { 0%{transform:translateX(-100%)} 100%{transform:translateX(350%)} }
+
+  /* ── summary cards ── */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .s-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 18px;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+  }
+  .s-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+  .s-card-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+  .s-card-val {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.1;
+  }
+  .s-card-lbl {
+    font-size: 11px;
+    color: var(--text3);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-top: 4px;
+  }
+
+  /* ── action buttons row ── */
+  .action-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+
+  /* ── section table ── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .data-table th {
+    background: var(--bg);
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text2);
+    border-bottom: 2px solid var(--border);
+  }
+  .data-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: top;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: var(--bg); }
+
+  /* ── progress bars ── */
+  .prog-item { margin-bottom: 14px; }
+  .prog-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  .prog-track {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .prog-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    border-radius: 4px;
+    transition: width 0.8s ease;
+  }
+
+  /* ── charts row ── */
+  .charts-row {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  /* ── info chips ── */
+  .info-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .info-chip {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--primary-bg);
+    color: var(--primary-dark);
+  }
+  .info-chip.green  { background: #f0fdf4; color: #15803d; }
+  .info-chip.orange { background: #fffbeb; color: #b45309; }
+  .info-chip.red    { background: #fef2f2; color: #dc2626; }
+
+  /* ── note banner ── */
+  .note-banner {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #92400e;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  /* ── empty state ── */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+  }
+  .empty-state .icon  { font-size: 52px; margin-bottom: 16px; }
+  .empty-state h3     { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .empty-state p      { font-size: 14px; color: var(--text2); margin-bottom: 24px; line-height: 1.6; }
+
+  @media(max-width: 900px) {
+    .summary-grid   { grid-template-columns: repeat(2,1fr); }
+    .charts-row     { grid-template-columns: 1fr; }
+    .search-row     { flex-direction: column; }
+  }
+  @media(max-width: 480px) {
+    .summary-grid   { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Search Hero -->
+<div class="search-hero">
+  <h2>🎯 Universal Exam Pattern Finder</h2>
+  <p>Enter any exam name — CBSE, NEET, JEE, GATE, UPSC, SSC, TNPSC, Anna University, Banking, Police and more.</p>
+
+  <form method="POST" id="patternForm">
+    <div class="search-row">
+      <input
+        type="text"
+        name="query"
+        class="search-input"
+        placeholder="e.g. NEET 2025, GATE CSE, CBSE 10th Maths, SSC CGL 2024..."
+        value="{{ query }}"
+        required
+        autocomplete="off"
+        id="queryInput"
+      />
+      <button type="submit" class="search-btn" id="searchBtn">
+        <i class="fas fa-search"></i> Get Pattern
+      </button>
+    </div>
+    <div class="examples">
+      <span class="ex-chip" onclick="fillQuery('NEET 2025')">NEET 2025</span>
+      <span class="ex-chip" onclick="fillQuery('JEE Main 2025')">JEE Main 2025</span>
+      <span class="ex-chip" onclick="fillQuery('GATE CSE 2025')">GATE CSE 2025</span>
+      <span class="ex-chip" onclick="fillQuery('UPSC CSE 2025')">UPSC CSE</span>
+      <span class="ex-chip" onclick="fillQuery('SSC CGL 2024')">SSC CGL</span>
+      <span class="ex-chip" onclick="fillQuery('CBSE 10th 2025')">CBSE 10th</span>
+      <span class="ex-chip" onclick="fillQuery('CBSE 12th Maths')">CBSE 12th Maths</span>
+      <span class="ex-chip" onclick="fillQuery('CAT 2024')">CAT</span>
+      <span class="ex-chip" onclick="fillQuery('TNPSC Group 4')">TNPSC Group 4</span>
+      <span class="ex-chip" onclick="fillQuery('Anna University BE CSE')">Anna University</span>
+      <span class="ex-chip" onclick="fillQuery('RRB NTPC 2024')">RRB NTPC</span>
+      <span class="ex-chip" onclick="fillQuery('IBPS PO 2024')">IBPS PO</span>
+    </div>
+  </form>
+</div>
+
+<!-- Loading bar -->
+<div class="loading-bar" id="loadingBar"></div>
+
+{% if error %}
+<div class="alert alert-error">
+  <i class="fas fa-exclamation-circle"></i> {{ error }}
+</div>
+{% endif %}
+
+{% if pattern and not pattern.get('error') %}
+
+<!-- Action row -->
+<div class="action-row">
+  <a href="/exam-pattern/download" class="btn btn-success">
+    <i class="fas fa-download"></i> Download Blueprint
+  </a>
+  <a href="/competitive?exam={{ pattern.exam_name | urlencode }}" class="btn btn-primary">
+    <i class="fas fa-bolt"></i> Generate Practice Questions
+  </a>
+  <a href="/fulltest" class="btn btn-secondary">
+    <i class="fas fa-flask"></i> Generate Mock Test
+  </a>
+  <a href="/exam-pattern/clear" class="btn btn-secondary">
+    <i class="fas fa-redo"></i> New Search
+  </a>
+</div>
+
+<!-- Summary Cards -->
+<div class="summary-grid">
+  <div class="s-card">
+    <div class="s-card-icon">📝</div>
+    <div class="s-card-val">{{ pattern.total_questions }}</div>
+    <div class="s-card-lbl">Total Questions</div>
+  </div>
+  <div class="s-card">
+    <div class="s-card-icon">🏅</div>
+    <div class="s-card-val">{{ pattern.total_marks }}</div>
+    <div class="s-card-lbl">Total Marks</div>
+  </div>
+  <div class="s-card">
+    <div class="s-card-icon">⏱️</div>
+    <div class="s-card-val">{{ pattern.duration_minutes }}<span style="font-size:14px;font-weight:500;"> min</span></div>
+    <div class="s-card-lbl">Duration</div>
+  </div>
+  <div class="s-card">
+    <div class="s-card-icon">⚠️</div>
+    <div class="s-card-val" style="font-size:14px;">{{ pattern.negative_marking or 'None' }}</div>
+    <div class="s-card-lbl">Negative Marking</div>
+  </div>
+</div>
+
+<!-- Exam Info Card -->
+<div class="card" style="margin-bottom:20px;">
+  <div class="card-header">
+    <div class="card-title">
+      <i class="fas fa-info-circle" style="color:var(--primary);"></i>
+      {{ pattern.exam_name }}
+    </div>
+    {% if pattern.official_source %}
+    <span class="info-chip">
+      <i class="fas fa-link" style="font-size:10px;"></i>
+      Source: {{ pattern.official_source }}
+    </span>
+    {% endif %}
+  </div>
+
+  <div class="form-grid-2" style="gap:20px;">
+    <div>
+      <div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">Exam Details</div>
+      {% for label, val in [
+          ('Conducting Body', pattern.conducting_body),
+          ('Year / Edition', pattern.year),
+          ('Level', pattern.level),
+          ('Exam Mode', pattern.exam_mode),
+          ('Eligibility', pattern.eligibility)
+        ] %}
+      {% if val %}
+      <div style="display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">
+        <span style="width:130px;flex-shrink:0;color:var(--text2);font-weight:600;">{{ label }}</span>
+        <span style="color:var(--text);">{{ val }}</span>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+
+    {% if pattern.exam_stages %}
+    <div>
+      <div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">Exam Stages</div>
+      {% for stage in pattern.exam_stages %}
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text);">
+        <span style="width:22px;height:22px;background:var(--primary);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">{{ loop.index }}</span>
+        {{ stage }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Charts Row -->
+<div class="charts-row">
+  <!-- Bar chart -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><i class="fas fa-chart-bar" style="color:var(--primary);"></i> Section-wise Question Distribution</div>
+    </div>
+    <canvas id="barChart" height="180"></canvas>
+  </div>
+
+  <!-- Pie chart -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><i class="fas fa-chart-pie" style="color:var(--accent);"></i> Marks Distribution</div>
+    </div>
+    <canvas id="pieChart" height="180"></canvas>
+  </div>
+</div>
+
+<!-- Section Table -->
+<div class="card" style="margin-bottom:20px;">
+  <div class="card-header">
+    <div class="card-title"><i class="fas fa-table" style="color:var(--primary);"></i> Detailed Section Breakdown</div>
+  </div>
+  <div style="overflow-x:auto;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Section / Subject</th>
+          <th>Questions</th>
+          <th>Marks</th>
+          <th>Marks/Question</th>
+          <th>Question Types</th>
+          <th>Share</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sec in pattern.sections %}
+        <tr>
+          <td><strong>{{ sec.name }}</strong></td>
+          <td>{{ sec.questions }}</td>
+          <td>{{ sec.marks }}</td>
+          <td>{{ sec.marks_per_question }}</td>
+          <td>
+            {% for qt in sec.question_types %}
+            <span class="info-chip" style="margin-right:4px;">{{ qt }}</span>
+            {% endfor %}
+          </td>
+          <td>
+            {% if pattern.total_questions and pattern.total_questions > 0 %}
+            {{ ((sec.questions / pattern.total_questions) * 100) | round(1) }}%
+            {% else %}—{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Subject Weightage Progress Bars -->
+<div class="card" style="margin-bottom:20px;">
+  <div class="card-header">
+    <div class="card-title"><i class="fas fa-percentage" style="color:var(--success);"></i> Subject Weightage</div>
+  </div>
+  {% for sub in pattern.subject_distribution %}
+  <div class="prog-item">
+    <div class="prog-header">
+      <span>{{ sub.subject }}</span>
+      <span>{{ sub.questions }} Q &nbsp;&bull;&nbsp; {{ sub.marks }} Marks &nbsp;&bull;&nbsp; {{ sub.percentage }}%</span>
+    </div>
+    <div class="prog-track">
+      <div class="prog-fill" style="width: {{ sub.percentage }}%;"></div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Chapter Weightage -->
+{% if pattern.chapter_weightage_available and pattern.chapter_weightage %}
+<div class="card" style="margin-bottom:20px;">
+  <div class="card-header">
+    <div class="card-title"><i class="fas fa-list-ol" style="color:var(--warning);"></i> Official Chapter-wise Weightage</div>
+  </div>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Chapter / Unit</th>
+        <th>Subject</th>
+        <th>Expected Questions</th>
+        <th>Weightage %</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ch in pattern.chapter_weightage %}
+      <tr>
+        <td><strong>{{ ch.chapter }}</strong></td>
+        <td>{{ ch.subject }}</td>
+        <td>{{ ch.questions }}</td>
+        <td>{{ ch.percentage }}%</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="note-banner">
+  <i class="fas fa-exclamation-triangle" style="flex-shrink:0;margin-top:1px;"></i>
+  <span><strong>Chapter-wise weightage is not officially specified</strong> for this exam. The data shown is based on subject/section distribution only. We do not present estimated data as official.</span>
+</div>
+{% endif %}
+
+<!-- Important Notes & Tips -->
+{% if pattern.important_notes or pattern.preparation_tips %}
+<div class="form-grid-2" style="gap:20px;margin-bottom:20px;">
+  {% if pattern.important_notes %}
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><i class="fas fa-exclamation-circle" style="color:var(--warning);"></i> Important Notes</div>
+    </div>
+    {% for note in pattern.important_notes %}
+    <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text);">
+      <i class="fas fa-circle" style="color:var(--warning);font-size:6px;margin-top:6px;flex-shrink:0;"></i>
+      {{ note }}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if pattern.preparation_tips %}
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><i class="fas fa-lightbulb" style="color:var(--success);"></i> Preparation Tips</div>
+    </div>
+    {% for tip in pattern.preparation_tips %}
+    <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text);">
+      <i class="fas fa-arrow-right" style="color:var(--success);font-size:11px;margin-top:3px;flex-shrink:0;"></i>
+      {{ tip }}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<!-- Empty state -->
+<div class="empty-state">
+  <div class="icon">🎯</div>
+  <h3>Search Any Exam Pattern</h3>
+  <p>
+    Enter the exam name above to get the official pattern, structure, marks distribution,<br/>
+    section breakdown, and a visual blueprint — all in one place.
+  </p>
+  <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;">
+    {% for ex in ['NEET 2025','JEE Main 2025','GATE CSE','UPSC CSE','SSC CGL','CBSE 12th','CAT 2024','TNPSC Group 2','Anna University','IBPS PO'] %}
+    <span class="ex-chip" style="background:var(--primary-bg);color:var(--primary);border-color:rgba(99,102,241,0.2);cursor:pointer;" onclick="fillQuery('{{ ex }}')">{{ ex }}</span>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+  // Fill query chip
+  function fillQuery(text) {
+    document.getElementById('queryInput').value = text;
+    document.getElementById('queryInput').focus();
+  }
+
+  // Show loading bar on form submit
+  document.getElementById('patternForm').addEventListener('submit', function() {
+    document.getElementById('loadingBar').classList.add('show');
+    document.getElementById('searchBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching...';
+    document.getElementById('searchBtn').disabled = true;
+  });
+
+  {% if pattern and not pattern.get('error') %}
+  // ── Bar Chart ──────────────────────────────
+  const barLabels = {{ pattern.sections | map(attribute='name') | list | tojson }};
+  const barData   = {{ pattern.sections | map(attribute='questions') | list | tojson }};
+
+  new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: {
+      labels: barLabels,
+      datasets: [{
+        label: 'Questions',
+        data: barData,
+        backgroundColor: [
+          'rgba(99,102,241,0.75)','rgba(139,92,246,0.75)',
+          'rgba(6,182,212,0.75)','rgba(34,197,94,0.75)',
+          'rgba(245,158,11,0.75)','rgba(239,68,68,0.75)'
+        ],
+        borderRadius: 6,
+        borderWidth: 0,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 12 } } },
+        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#64748b' }, beginAtZero: true }
+      }
+    }
+  });
+
+  // ── Pie Chart ──────────────────────────────
+  const pieLabels = {{ pattern.subject_distribution | map(attribute='subject') | list | tojson }};
+  const pieMarks  = {{ pattern.subject_distribution | map(attribute='marks') | list | tojson }};
+  const pieColors = [
+    '#6366f1','#8b5cf6','#06b6d4','#22c55e',
+    '#f59e0b','#ef4444','#ec4899','#10b981'
+  ];
+
+  new Chart(document.getElementById('pieChart'), {
+    type: 'doughnut',
+    data: {
+      labels: pieLabels,
+      datasets: [{
+        data: pieMarks,
+        backgroundColor: pieColors.slice(0, pieLabels.length),
+        borderWidth: 3,
+        borderColor: '#fff',
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#64748b', font: { size: 11 }, padding: 10, boxWidth: 12 }
+        }
+      }
+    }
+  });
+
+  // Animate progress bars
+  document.querySelectorAll('.prog-fill').forEach(b => {
+    const w = b.style.width;
+    b.style.width = '0';
+    setTimeout(() => { b.style.width = w; }, 120);
+  });
+  {% endif %}
+</script>
+{% endblock %}
