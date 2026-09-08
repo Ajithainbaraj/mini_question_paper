@@ -165,6 +165,12 @@ Instructions:
 
 # ── ROUTES ───────────────────────────────────────────────────────────────────
 
+# HEALTH CHECK (for Render deployment debugging)
+@app.route("/health")
+def health_check():
+    """Simple health check endpoint for monitoring"""
+    return {"status": "ok", "message": "App is running"}, 200
+
 # LOGIN / LOGOUT
 @app.route("/login", methods=["GET", "POST"])
 def login():

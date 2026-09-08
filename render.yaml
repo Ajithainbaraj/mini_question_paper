@@ -3,7 +3,7 @@ services:
     name: eduai
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --timeout 300 --workers 1
     envVars:
       - key: GROQ_API_KEY
         sync: false
@@ -19,3 +19,9 @@ services:
         sync: false
       - key: GITHUB_CLIENT_SECRET
         sync: false
+      - key: TRANSFORMERS_CACHE
+        value: /tmp/transformers_cache
+      - key: HF_HOME
+        value: /tmp/hf_home
+      - key: SENTENCE_TRANSFORMERS_HOME
+        value: /tmp/sentence_transformers

@@ -17,7 +17,16 @@ _embedder = None
 def get_embedder():
     global _embedder
     if _embedder is None:
-        _embedder = SentenceTransformer("all-MiniLM-L6-v2")
+        try:
+            print("[RAG] Loading sentence-transformers model...")
+            _embedder = SentenceTransformer("all-MiniLM-L6-v2")
+            print("[RAG] Model loaded successfully!")
+        except Exception as e:
+            print(f"[RAG] Error loading model: {e}")
+            # Try with explicit cache directory
+            cache_dir = os.environ.get("TRANSFORMERS_CACHE", "/tmp/transformers_cache")
+            os.makedirs(cache_dir, exist_ok=True)
+            _embedder = SentenceTransformer("all-MiniLM-L6-v2", cache_folder=cache_dir)
     return _embedder
 
 
