@@ -57,7 +57,7 @@ Ensure these are set on your deployment platform:
 ### Required
 - [ ] `GROQ_API_KEY` - Your Groq API key (gsk_...)
   - Get from: https://console.groq.com
-  - Current value: `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`
+  - Current value: `your_api_key_here`
 
 ### Auto-Generated (if using Render)
 - [ ] `SECRET_KEY` - Will be auto-generated ✅
