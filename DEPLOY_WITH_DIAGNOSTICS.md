@@ -57,7 +57,7 @@ The diagnostic will show EXACTLY which part is failing:
 ### If GROQ_API_KEY shows ✗:
 1. Go to Render Dashboard
 2. Your Service → Environment
-3. Add `GROQ_API_KEY` = `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`
+3. Add `GROQ_API_KEY` = `your_actual_groq_api_key`
 4. Click "Save Changes"
 
 ### If Sentence Transformers shows ✗:

@@ -80,7 +80,7 @@ git push heroku main
 
 | Variable | Value | Where to Set |
 |----------|-------|--------------|
-| `GROQ_API_KEY` | `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` | Render/Heroku Dashboard |
+| `GROQ_API_KEY` | `your_groq_api_key` | Render/Heroku Dashboard |
 
 ### Your Current Configuration
 

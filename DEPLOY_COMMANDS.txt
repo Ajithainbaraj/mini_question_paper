@@ -94,20 +94,20 @@ FOR RENDER (via Dashboard)
 2. Click your service
 3. Go to "Environment" tab
 4. Add/Update:
-   - GROQ_API_KEY = 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
+   - GROQ_API_KEY = your_actual_groq_api_key_here
 
 ─────────────────────────────────────────────────────────────────
 FOR HEROKU (via CLI)
 ─────────────────────────────────────────────────────────────────
 
 # Set Groq API key
-heroku config:set GROQ_API_KEY=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
+heroku config:set GROQ_API_KEY=your_actual_groq_api_key_here
 
 # Verify it's set
 heroku config
 
 # You should see:
-# GROQ_API_KEY: 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
+# GROQ_API_KEY: gsk_...
 
 
 =================================================================
