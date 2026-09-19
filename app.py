@@ -96,6 +96,24 @@ def login_required(f):
     return decorated
 
 
+def _load_variation_analysis():
+    """Load variation analysis from disk using session ID."""
+    analysis_id = session.get("variation_analysis_id")
+    if not analysis_id:
+        return None, None, None
+    
+    analysis_file = os.path.join(app.config["UPLOAD_FOLDER"], f"analysis_{analysis_id}.json")
+    if not os.path.exists(analysis_file):
+        return None, None, None
+    
+    try:
+        with open(analysis_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return data.get("analytics"), data.get("questions"), data.get("variations_map")
+    except Exception:
+        return None, None, None
+
+
 # ── HELPERS ──────────────────────────────────────────────────────────────────
 def format_university_paper(college, subject, semester, exam_type, questions,
                              include_blooms=False, include_answer_key=False):
@@ -890,15 +908,16 @@ def question_variations():
     if request.method == "POST":
         # Clear previous session data
         session.pop("variation_analytics", None)
-        session.pop("variation_questions", None)
-        session.pop("variations_map", None)
+        session.pop("variation_analysis_id", None)  # Store ID instead of full data
         
         question_bank_file = request.files.get("question_bank_file")
         
         if not question_bank_file or question_bank_file.filename == "":
             error = "Please upload a mathematics question bank file."
         else:
-            file_path = os.path.join(app.config["UPLOAD_FOLDER"], f"qbank_{uuid.uuid4()}_{question_bank_file.filename}")
+            # Generate unique ID for this analysis
+            analysis_id = str(uuid.uuid4())
+            file_path = os.path.join(app.config["UPLOAD_FOLDER"], f"qbank_{analysis_id}_{question_bank_file.filename}")
             question_bank_file.save(file_path)
             
             try:
@@ -919,10 +938,18 @@ def question_variations():
                     # Step 3: Build analytics
                     analytics = build_variation_analytics(questions, variations_map)
                     
-                    # Store in session
-                    session["variation_analytics"] = analytics
-                    session["variation_questions"] = questions
-                    session["variations_map"] = variations_map
+                    # Save to disk instead of session (fixes cookie size issue)
+                    analysis_file = os.path.join(app.config["UPLOAD_FOLDER"], f"analysis_{analysis_id}.json")
+                    with open(analysis_file, "w", encoding="utf-8") as f:
+                        json.dump({
+                            "analytics": analytics,
+                            "questions": questions,
+                            "variations_map": variations_map
+                        }, f)
+                    
+                    # Store only the ID in session (tiny!)
+                    session["variation_analysis_id"] = analysis_id
+                    session["variation_analytics"] = analytics  # Keep analytics (small) for display
                     
             except Exception as e:
                 error = f"Analysis failed: {str(e)[:200]}"
@@ -941,12 +968,14 @@ def question_variations():
 @login_required
 def question_variations_concept(concept_name):
     """View all questions and variations for a specific concept."""
-    questions = session.get("variation_questions", [])
-    variations_map = session.get("variations_map", {})
+    analytics, questions, variations_map = _load_variation_analysis()
+    
+    if not questions:
+        return "No analysis data found. Please run analysis first.", 404
     
     # Filter questions by concept
     concept_questions = [q for q in questions if q.get("concept") == concept_name]
-    concept_variations = variations_map.get(concept_name, {})
+    concept_variations = variations_map.get(concept_name, {}) if variations_map else {}
     
     return render_template("question_variations_concept.html",
                           concept=concept_name,
@@ -958,7 +987,10 @@ def question_variations_concept(concept_name):
 @login_required
 def question_variations_generate(question_id):
     """Generate all 10 variations for a specific question."""
-    questions = session.get("variation_questions", [])
+    analytics, questions, variations_map = _load_variation_analysis()
+    
+    if not questions:
+        return "No analysis data found. Please run analysis first.", 404
     
     # Find the question
     original_question = next((q for q in questions if q.get("id") == question_id), None)
@@ -978,8 +1010,11 @@ def question_variations_generate(question_id):
 @login_required
 def question_variations_filter():
     """Filter questions by chapter, concept, difficulty, or pattern."""
-    questions = session.get("variation_questions", [])
-    analytics = session.get("variation_analytics", {})
+    analytics, questions, variations_map = _load_variation_analysis()
+    
+    if not questions:
+        questions = []
+        analytics = {}
     
     # Get filter params
     chapter = request.args.get("chapter")
@@ -1013,9 +1048,10 @@ def question_variations_filter():
 @login_required
 def question_variations_download():
     """Download variation analysis report as PDF."""
-    analytics = session.get("variation_analytics")
+    analytics, questions, variations_map = _load_variation_analysis()
+    
     if not analytics:
-        return "No analysis in session.", 400
+        return "No analysis in session. Please run analysis first.", 400
     
     buffer = io.BytesIO()
     pdf = canvas.Canvas(buffer, pagesize=letter)
@@ -1038,12 +1074,12 @@ def question_variations_download():
     y -= 6
     
     ln("SUMMARY", bold=True, size=12)
-    ln(f"  Total Questions Analyzed   : {analytics['total_questions']}")
-    ln(f"  Total Concepts Found       : {analytics['total_concepts']}")
-    ln(f"  Total Chapters             : {analytics['total_chapters']}")
-    ln(f"  Most Repeated Concept      : {analytics['most_repeated_concept']} ({analytics['most_repeated_count']} Q)")
-    ln(f"  Most Common Pattern        : {analytics['most_common_pattern']} ({analytics['most_common_pattern_count']} Q)")
-    ln(f"  Total Possible Variations  : {analytics['total_possible_variations']}")
+    ln(f"  Total Questions Analyzed   : {analytics.get('total_questions', 0)}")
+    ln(f"  Total Concepts Found       : {analytics.get('total_concepts', 0)}")
+    ln(f"  Total Chapters             : {analytics.get('total_chapters', 0)}")
+    ln(f"  Most Repeated Concept      : {analytics.get('most_repeated_concept', 'N/A')} ({analytics.get('most_repeated_count', 0)} Q)")
+    ln(f"  Most Common Pattern        : {analytics.get('most_common_pattern', 'N/A')} ({analytics.get('most_common_pattern_count', 0)} Q)")
+    ln(f"  Total Possible Variations  : {analytics.get('total_possible_variations', 0)}")
     y -= 10
     
     ln("CHAPTER DISTRIBUTION", bold=True, size=12)

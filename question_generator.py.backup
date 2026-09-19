@@ -8,219 +8,105 @@ load_dotenv()
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 # Using openai/gpt-oss-120b - most powerful available model on Groq
-MODEL = "groq/compound-mini"  # Auto-fixed: faster & more reliable
+MODEL = "openai/gpt-oss-120b"
 
 
-def _call_groq(prompt: str, json_mode: bool = True, retries: int = 5) -> str:
-    """Call Groq with automatic retry on rate limit errors. (Retries increased from 3 to 5)"""
-    
-    # Prevent 413 errors by limiting prompt size - but DON'T truncate, raise error instead
-    MAX_PROMPT_SIZE = 7000  # characters (safe limit for Groq)
-    if len(prompt) > MAX_PROMPT_SIZE:
-        print(f"⚠️ Prompt too large ({len(prompt)} chars), exceeds {MAX_PROMPT_SIZE} limit")
-        # Don't truncate - it breaks context. Instead, raise error so calling function can handle it
-        raise ValueError(f"Prompt too large: {len(prompt)} chars (max: {MAX_PROMPT_SIZE}). Reduce input size.")
-    
+def _call_groq(prompt: str, json_mode: bool = True, retries: int = 3) -> str:
+    """Call Groq with automatic retry on rate limit errors."""
     for attempt in range(1, retries + 1):
         try:
             kwargs = {"response_format": {"type": "json_object"}} if json_mode else {}
             response = client.chat.completions.create(
                 model=MODEL,
                 messages=[{"role": "user", "content": prompt}],
-                temperature=0.7,  # Increased from 0.5 for more creative responses
-                max_tokens=3000,  # Reduced to ensure completion
+                temperature=0.5,
                 **kwargs
             )
-            content = response.choices[0].message.content
-            
-            if not content or len(content.strip()) == 0:
-                print(f"⚠️ Attempt {attempt}: Empty response from API")
-                if attempt < retries:
-                    time.sleep(3)
-                    continue
-                raise ValueError("Empty response from API after all retries")
-            
-            content = content.strip()
-            
-            # Validate JSON response if json_mode is enabled
-            if json_mode and content:
-                # Check if response contains valid JSON
-                if '{' not in content:
-                    print(f"⚠️ Attempt {attempt}: No JSON braces found in response")
-                    if attempt < retries:
-                        time.sleep(2)
-                        continue
-                    raise ValueError(f"No JSON in response after {retries} attempts")
-            
-            return content
-            
+            return response.choices[0].message.content.strip()
         except Exception as e:
             err = str(e)
             print(f"⚠️ Groq attempt {attempt}/{retries} failed: {err[:200]}")
-            
-            # Handle 413 specifically - don't retry, it won't work
-            if "413" in err or "request_too_large" in err.lower():
-                print("   ❌ Request too large! Reduce input size.")
-                raise ValueError("Request too large - please use smaller input")
-            
             if "429" in err and attempt < retries:
-                wait = 30 * attempt
+                wait = 15 * attempt
                 print(f"   Rate limited — waiting {wait}s before retry...")
                 time.sleep(wait)
-            elif attempt < retries:
-                # Retry on other errors too
-                time.sleep(5 * attempt)
             else:
                 raise
     raise RuntimeError("All Groq retries exhausted")
 
 
-def _extract_json_robust(content: str) -> dict:
-    """Robustly extract JSON from LLM response with multiple fallback methods."""
-    import re
-    
-    # Method 1: Find complete JSON object
-    start = content.find("{")
-    end = content.rfind("}") + 1
-    
-    if start != -1 and end > start:
-        json_str = content[start:end]
-        try:
-            return json.loads(json_str)
-        except json.JSONDecodeError as e:
-            print(f"[DEBUG] JSON parse failed at position {e.pos}: {e.msg}")
-            # Try to repair incomplete JSON
-            repaired = _repair_incomplete_json(json_str)
-            if repaired:
-                return repaired
-    
-    # Method 2: Try to find JSON in code blocks
-    json_block_pattern = r'```(?:json)?\s*(\{.*?\})\s*```'
-    match = re.search(json_block_pattern, content, re.DOTALL)
-    if match:
-        try:
-            return json.loads(match.group(1))
-        except json.JSONDecodeError:
-            pass
-    
-    # Method 3: Look for nested braces (handle multiple levels)
-    brace_count = 0
-    start_idx = -1
-    for i, char in enumerate(content):
-        if char == '{':
-            if brace_count == 0:
-                start_idx = i
-            brace_count += 1
-        elif char == '}':
-            brace_count -= 1
-            if brace_count == 0 and start_idx != -1:
-                try:
-                    return json.loads(content[start_idx:i+1])
-                except json.JSONDecodeError:
-                    pass
-    
-    # If all methods fail, raise error with helpful info
-    raise ValueError(f"Could not extract valid JSON. Response preview: {content[:300]}")
-
-
-def _repair_incomplete_json(json_str: str) -> dict:
-    """Try to repair incomplete/truncated JSON by extracting what we can."""
-    import re
-    
-    try:
-        # Strategy: Build a minimal valid JSON from what we have
-        # Extract total_questions if present
-        total_match = re.search(r'"total_questions"\s*:\s*(\d+)', json_str)
-        total_questions = int(total_match.group(1)) if total_match else 0
-        
-        # Extract complete question objects
-        # Look for pattern: {"id": X, ... } that are complete
-        questions = []
-        
-        # Find all complete question objects using a more lenient approach
-        # Split by "id": to find potential question boundaries
-        parts = json_str.split('"id"')
-        
-        for i, part in enumerate(parts[1:], 1):  # Skip first part (before first id)
-            try:
-                # Try to extract a minimal question object
-                # Look for id, question, chapter at minimum
-                id_match = re.search(r':\s*(\d+)', part)
-                question_match = re.search(r'"question"\s*:\s*"([^"]+)"', part)
-                chapter_match = re.search(r'"chapter"\s*:\s*"([^"]+)"', part)
-                
-                if id_match and question_match:
-                    q_obj = {
-                        "id": int(id_match.group(1)),
-                        "question": question_match.group(1),
-                        "chapter": chapter_match.group(1) if chapter_match else "Unknown",
-                        "concept": "Extracted from truncated response",
-                        "formula": "N/A",
-                        "pattern_type": "Unknown",
-                        "difficulty": "Medium",
-                        "semantic_key": "unknown",
-                        "keywords": []
-                    }
-                    questions.append(q_obj)
-            except:
-                continue
-        
-        if questions:
-            result = {
-                "total_questions": len(questions),
-                "questions": questions
-            }
-            print(f"[DEBUG] ✅ Extracted {len(questions)} partial questions from truncated JSON!")
-            return result
-            
-    except Exception as e:
-        print(f"[DEBUG] JSON repair/extraction failed: {e}")
-    
-    return None
-
-
 # ── UNIVERSITY QUESTION PAPER ────────────────────────────────────────────────
 def generate_questions(context: str, difficulty: str = "medium",
                        include_blooms: bool = False, include_answer_key: bool = False) -> dict:
-    
-    # Truncate context if too large to prevent prompt size issues
-    MAX_CONTEXT_SIZE = 3500  # Keep room for the rest of the prompt
-    if len(context) > MAX_CONTEXT_SIZE:
-        print(f"⚠️ Context truncated from {len(context)} to {MAX_CONTEXT_SIZE} chars")
-        context = context[:MAX_CONTEXT_SIZE] + "\n... [truncated]"
-    
-    prompt = f"""Generate a university exam paper from this syllabus context.
+    prompt = f"""You are an intelligent university question paper generator.
+Use ONLY the syllabus context below (retrieved via RAG). Do NOT add any external knowledge.
 
-CONTEXT:
+--- SYLLABUS CONTEXT ---
 {context}
+------------------------
 
-REQUIREMENTS:
-- Part A: 10 MCQs (4 options each)
-- Part B: 8 short questions
-- Part C: 2 long questions
-- All different topics
-- Difficulty: {difficulty}
+Rules:
+1. Question Paper Structure:
+   - Part A: exactly 10 MCQs (1 mark each)
+   - Part B: exactly 8 short-answer questions (5 marks each)
+   - Part C: exactly 2 long-answer questions (10 marks each)
 
-JSON FORMAT (return ONLY this, no other text):
+2. Content Guidelines:
+   - Questions must be strictly based on the context above.
+   - EVERY question must test a COMPLETELY DIFFERENT topic or concept.
+   - DO NOT repeat, rephrase, or ask about the same concept twice anywhere in the paper.
+   - Each MCQ must have a unique topic — no two MCQs can be about the same subject.
+   - Difficulty distribution: Easy 30%, Medium 50%, Hard 20%.
+   - Overall difficulty level: {difficulty}
+
+3. STRICT NO-DUPLICATE RULE:
+   - Before finalizing, check every question against all others.
+   - If any two questions are similar in topic or wording, replace one with a different topic.
+   - Questions across Part A, B, and C must all be on different topics.
+
+4. Quality:
+   - Clear, academic language. No spelling errors.
+   - MCQs: 4 options (A-D), one correct answer.
+   - Bloom's taxonomy tag for every question: Remember, Understand, Apply, Analyze, Evaluate, or Create.
+   - answer_key for Part B & C: 1-2 sentence hint.
+
+Return STRICT JSON ONLY in this exact format:
 {{
-  "mcqs": [{{"question": "text", "options": ["A","B","C","D"], "answer": "A", "blooms": "Remember"}}],
-  "part_b": [{{"question": "text", "answer_key": "hint", "blooms": "Understand"}}],
-  "part_c": [{{"question": "text", "answer_key": "hint", "blooms": "Analyze"}}]
-}}
-
-Generate exactly 10 MCQs, 8 Part B, 2 Part C. Return ONLY valid JSON."""
+  "mcqs": [
+    {{
+      "question": "string",
+      "options": ["string", "string", "string", "string"],
+      "answer": "string",
+      "blooms": "string"
+    }}
+  ],
+  "part_b": [
+    {{
+      "question": "string",
+      "answer_key": "string",
+      "blooms": "string"
+    }}
+  ],
+  "part_c": [
+    {{
+      "question": "string",
+      "answer_key": "string",
+      "blooms": "string"
+    }}
+  ]
+}}"""
 
     try:
-        print(f"[DEBUG] Sending to Groq (context: {len(context)} chars, total prompt: {len(prompt)} chars)")
+        print(f"[DEBUG] Sending to Groq (context: {len(context)} chars)")
         content = _call_groq(prompt, json_mode=True)
-        print(f"[DEBUG] Response received: {len(content)} chars")
-        if content:
-            print(f"[DEBUG] Response preview: {content[:200]}")
-        else:
-            print(f"[DEBUG] Response is empty!")
+        print(f"[DEBUG] Response preview: {content[:300]}")
 
-        # Use robust JSON extraction
-        data = _extract_json_robust(content)
+        start = content.find("{")
+        end = content.rfind("}") + 1
+        if start == -1 or end == 0:
+            raise ValueError(f"No JSON in response: {content[:200]}")
+
+        data = json.loads(content[start:end])
 
         if not all(k in data for k in ["mcqs", "part_b", "part_c"]):
             raise ValueError(f"Missing keys. Got: {list(data.keys())}")
@@ -548,40 +434,29 @@ Revision Notes:"""
 
 # ── AI TUTOR ─────────────────────────────────────────────────────────────────
 def answer_question(context: str, question: str) -> str:
-    prompt = f"""You are an expert tutor explaining educational content to students.
+    prompt = f"""You are an expert tutor for competitive exams.
+Your task is to explain the given concept clearly using the provided study material.
 
-STUDY MATERIAL:
+Instructions:
+- Use ONLY the provided context
+- Explain in a simple and easy-to-understand way
+- Follow a step-by-step structure
+- Start with a basic definition
+- Then explain key concepts
+- Break down complex ideas into smaller steps
+- Provide at least one example
+- Highlight important exam points
+
+If the concept is not found in the context, respond with:
+"The concept is not available in the provided material."
+
+Context:
 {context}
 
-STUDENT'S QUESTION:
+Concept:
 {question}
 
-INSTRUCTIONS:
-Your job is to EXPLAIN THE CONCEPTS from the study material that relate to the student's question.
-
-DO NOT:
-- Just describe what topics are in the syllabus
-- List chapter names or units
-- Say "the syllabus contains..."
-
-DO:
-- Explain the actual concept/topic the student is asking about
-- Use the study material to provide detailed explanations
-- Give examples if mentioned in the material
-- Break down complex ideas step-by-step
-- Make it easy to understand
-
-STRUCTURE:
-1. Brief definition of the concept
-2. Detailed explanation using material
-3. Key points to remember
-4. Example if available
-5. Exam tips if relevant
-
-If the concept is not in the material, say:
-"I don't have information about this specific topic in the provided study material. Please upload material that covers this topic."
-
-Now explain the concept clearly:"""
+Explanation:"""
 
     try:
         print(f"[DEBUG] Tutor question: {question}")
@@ -614,24 +489,15 @@ def _fallback_questions() -> dict:
 
 def extract_questions_from_paper(paper_text: str) -> list:
     """Extract individual questions from a question paper text using LLM."""
-    
-    # Truncate to prevent 413 error
-    MAX_PAPER_SIZE = 4000  # chars (reduced from 6000)
-    if len(paper_text) > MAX_PAPER_SIZE:
-        print(f"⚠️ Paper text truncated from {len(paper_text)} to {MAX_PAPER_SIZE} chars")
-        paper_text = paper_text[:MAX_PAPER_SIZE] + "\n... [truncated]"
-    
     prompt = f"""You are an expert at parsing question papers.
 Extract every question from the text below.
 Each question may start with Q1, Q.1, 1., 1), or just a number.
 Include all options if present (MCQ format).
 
 Question Paper Text:
-{paper_text}
+{paper_text[:6000]}
 
-CRITICAL: Return ONLY valid JSON. No text before or after. Start with {{ and end with }}.
-
-Required JSON format:
+Return STRICT JSON ONLY:
 {{
   "questions": [
     {{
@@ -650,7 +516,9 @@ Rules:
 """
     try:
         raw = _call_groq(prompt, json_mode=True)
-        data = _extract_json_robust(raw)
+        start = raw.find("{")
+        end = raw.rfind("}") + 1
+        data = json.loads(raw[start:end])
         return data.get("questions", [])
     except Exception as e:
         print(f"⚠️ Question extraction error: {e}")
@@ -788,43 +656,85 @@ def fetch_exam_pattern(query: str) -> dict:
     Returns structured JSON with all pattern details.
     IMPORTANT: Does NOT invent data — only returns what is officially known.
     """
-    prompt = f"""You are an expert on competitive exam patterns.
+    prompt = f"""You are an expert on Indian and international competitive exam patterns and syllabi.
 
-Exam: "{query}"
+The user wants to know the official exam pattern for: "{query}"
 
-Return official exam pattern details in JSON format.
+Your task:
+1. Identify the exact exam name, conducting body, and year/edition.
+2. Return ONLY officially documented information. Do NOT invent or estimate any figures.
+3. If chapter-wise weightage is NOT officially published, set chapter_weightage_available to false and leave chapter_weightage empty.
+4. Be accurate about negative marking, total marks, sections, etc.
 
-CRITICAL: Return ONLY valid JSON. No text before or after.
-
+Return STRICT JSON ONLY in this exact format:
 {{
-  "exam_name": "string",
-  "conducting_body": "string",
-  "year": "string",
-  "level": "National/State/University",
-  "eligibility": "brief string",
-  "exam_mode": "Online/Offline/Both",
+  "exam_name": "Full official name of the exam",
+  "conducting_body": "Name of the conducting organization",
+  "year": "Year or edition (e.g. 2024, 2025)",
+  "level": "National / State / University / School",
+  "eligibility": "Brief eligibility criteria",
+  "exam_mode": "Online / Offline / Both",
   "duration_minutes": 180,
   "total_marks": 720,
   "total_questions": 180,
-  "negative_marking": "string or No",
-  "exam_stages": ["string"],
-  "official_source": "string",
-  "sections": [{{"name": "string", "questions": 50, "marks": 200, "marks_per_question": 4}}],
-  "subject_distribution": [{{"subject": "string", "questions": 50, "marks": 200, "percentage": 27.8}}],
+  "negative_marking": "-1/3 per wrong answer OR No negative marking",
+  "exam_stages": ["Stage 1: Prelims", "Stage 2: Mains"],
+  "official_source": "URL or name of official source (e.g. nta.ac.in)",
+  "sections": [
+    {{
+      "name": "Physics",
+      "questions": 50,
+      "marks": 200,
+      "marks_per_question": 4,
+      "question_types": ["MCQ", "Assertion-Reason"]
+    }}
+  ],
+  "subject_distribution": [
+    {{"subject": "Physics", "questions": 50, "marks": 200, "percentage": 27.8}},
+    {{"subject": "Chemistry", "questions": 50, "marks": 200, "percentage": 27.8}},
+    {{"subject": "Biology", "questions": 100, "marks": 400, "percentage": 44.4}}
+  ],
   "chapter_weightage_available": false,
   "chapter_weightage": [],
-  "important_notes": ["string"],
-  "preparation_tips": ["string"]
+  "important_notes": [
+    "Any important exam-specific rules or changes",
+    "Recent changes to pattern if any"
+  ],
+  "preparation_tips": [
+    "Tip 1",
+    "Tip 2",
+    "Tip 3"
+  ]
 }}
 
-If exam not found, return:
-{{"exam_name": "Unknown", "error": "Could not identify exam", "conducting_body": "", "year": "", "level": "", "eligibility": "", "exam_mode": "", "duration_minutes": 0, "total_marks": 0, "total_questions": 0, "negative_marking": "", "exam_stages": [], "official_source": "", "sections": [], "subject_distribution": [], "chapter_weightage_available": false, "chapter_weightage": [], "important_notes": [], "preparation_tips": []}}
-
-Return accurate official data only. Do not invent figures."""
+If you cannot confidently identify the exam or don't have reliable data, return:
+{{
+  "exam_name": "Unknown",
+  "error": "Could not identify a specific exam from the query. Please be more specific.",
+  "conducting_body": "",
+  "year": "",
+  "level": "",
+  "eligibility": "",
+  "exam_mode": "",
+  "duration_minutes": 0,
+  "total_marks": 0,
+  "total_questions": 0,
+  "negative_marking": "",
+  "exam_stages": [],
+  "official_source": "",
+  "sections": [],
+  "subject_distribution": [],
+  "chapter_weightage_available": false,
+  "chapter_weightage": [],
+  "important_notes": [],
+  "preparation_tips": []
+}}"""
 
     try:
         raw = _call_groq(prompt, json_mode=True)
-        data = _extract_json_robust(raw)
+        start = raw.find("{")
+        end   = raw.rfind("}") + 1
+        data  = json.loads(raw[start:end])
         print(f"[DEBUG] Exam pattern fetched for: {query}")
         return data
     except Exception as e:
@@ -851,63 +761,51 @@ def analyze_math_question_bank(question_bank_text: str) -> dict:
     Step 1: Extract and analyze all math questions from the uploaded question bank.
     Identifies: chapter, concept, formula, pattern, difficulty, semantic structure.
     """
-    # Truncate question bank to prevent 413 error
-    MAX_QUESTION_BANK_SIZE = 3000  # chars
-    if len(question_bank_text) > MAX_QUESTION_BANK_SIZE:
-        print(f"⚠️ Question bank truncated from {len(question_bank_text)} to {MAX_QUESTION_BANK_SIZE} chars")
-        question_bank_text = question_bank_text[:MAX_QUESTION_BANK_SIZE] + "\n... [truncated]"
-    
     prompt = f"""You are an expert mathematics educator and question pattern analyzer.
 
 Analyze the following mathematics question bank and extract each question with its metadata.
 
 QUESTION BANK:
-{question_bank_text}
-
-IMPORTANT: Limit your response to a MAXIMUM of 10 questions to avoid truncation.
-If there are more than 10 questions, extract only the first 10.
+{question_bank_text[:8000]}
 
 Your task:
-1. Extract questions (max 10)
+1. Extract every question
 2. Identify the mathematical chapter (Algebra, Calculus, Trigonometry, Geometry, etc.)
-3. Identify the core concept (Quadratic Equations, Derivatives, etc.)
-4. Identify the formula/theorem (keep formulas SHORT - under 50 chars)
-5. Classify the question pattern type (Direct/Word Problem/Application/Multi-step/Reverse/Conceptual)
-6. Assess difficulty (Easy/Medium/Hard)
-7. Extract semantic_key (short code like "solve_quadratic", "find_derivative")
+3. Identify the core concept (Quadratic Equations, Derivatives, Trigonometric Identities, etc.)
+4. Identify the formula/theorem involved
+5. Classify the question pattern type (Direct Formula, Word Problem, Application, Multi-step, Reverse, etc.)
+6. Assess difficulty (Easy, Medium, Hard)
+7. Extract the semantic structure (what mathematical operation is being tested)
 
-CRITICAL: 
-- Return ONLY valid JSON. No text before or after. Start with {{ and end with }}.
-- Keep ALL text fields concise (formulas < 50 chars, questions < 200 chars)
-- Extract MAXIMUM 10 questions only
-
-Required JSON format:
+Return STRICT JSON ONLY:
 {{
-  "total_questions": 5,
+  "total_questions": <number>,
   "questions": [
     {{
       "id": 1,
-      "question": "brief question text (under 200 chars)",
-      "chapter": "Mathematics chapter",
-      "concept": "specific concept",
-      "formula": "short formula (under 50 chars)",
-      "pattern_type": "Direct/Word Problem/Application/etc",
+      "question": "full question text",
+      "chapter": "Mathematics chapter name",
+      "concept": "specific mathematical concept",
+      "formula": "formula or theorem used",
+      "pattern_type": "Direct/Word Problem/Application/Multi-step/Reverse/Conceptual",
       "difficulty": "Easy/Medium/Hard",
-      "semantic_key": "short_code",
-      "keywords": ["key1", "key2"]
+      "semantic_key": "core mathematical operation (e.g., solve_quadratic, find_derivative)",
+      "keywords": ["keyword1", "keyword2"]
     }}
   ]
 }}
 
 Rules:
-- Extract MAX 10 questions
+- Extract ALL questions found
 - Be precise about the concept (not just chapter)
 - semantic_key should identify the core mathematical operation
 - Include all relevant formulas
 """
     try:
         raw = _call_groq(prompt, json_mode=True)
-        data = _extract_json_robust(raw)
+        start = raw.find("{")
+        end = raw.rfind("}") + 1
+        data = json.loads(raw[start:end])
         print(f"[DEBUG] Analyzed {data.get('total_questions', 0)} questions")
         return data
     except Exception as e:
@@ -935,13 +833,10 @@ def find_question_variations(analyzed_questions: list) -> dict:
         if len(questions) < 2:
             continue  # Need at least 2 questions to find variations
         
-        # Limit questions to prevent 413 error
-        questions_sample = questions[:5]  # Only analyze first 5 questions per concept
-        
-        # Truncate question text to prevent large requests
+        # Use LLM to identify variation patterns
         q_list = "\n\n".join(
-            f"Q{i+1}: {q['question'][:200]}"  # Truncate to 200 chars per question
-            for i, q in enumerate(questions_sample)
+            f"Q{i+1}: {q['question']}"
+            for i, q in enumerate(questions[:10])  # Limit to 10 per concept
         )
         
         prompt = f"""You are an expert at identifying mathematical question variation patterns.
@@ -964,9 +859,7 @@ Analyze how this SAME concept appears in DIFFERENT ways. Identify variation type
 9. Changed Conditions/Data
 10. Different Solving Method
 
-CRITICAL: Return ONLY valid JSON. No text before or after. Start with {{ and end with }}.
-
-Required JSON format:
+Return STRICT JSON ONLY:
 {{
   "concept": "{concept}",
   "total_questions": {len(questions)},
@@ -985,7 +878,9 @@ Focus on SEMANTIC variations, not just wording differences.
 """
         try:
             raw = _call_groq(prompt, json_mode=True)
-            variation_data = _extract_json_robust(raw)
+            start = raw.find("{")
+            end = raw.rfind("}") + 1
+            variation_data = json.loads(raw[start:end])
             variations_map[concept] = variation_data
         except Exception as e:
             print(f"⚠️ Variation analysis error for {concept}: {e}")
@@ -997,85 +892,68 @@ Focus on SEMANTIC variations, not just wording differences.
 def generate_question_variations(original_question: dict, num_variations: int = 10) -> list:
     """
     Step 3: Generate specific variations for a given question.
-    Creates variations that test the SAME concept in DIFFERENT ways.
+    Creates all 10 types of variations with hints and solutions.
     """
     question_text = original_question.get("question", "")
-    concept = original_question.get("concept", "Unknown")
-    formula = original_question.get("formula", "N/A")
-    chapter = original_question.get("chapter", "Mathematics")
+    concept = original_question.get("concept", "")
+    formula = original_question.get("formula", "")
+    chapter = original_question.get("chapter", "")
     
-    # Limit question text to prevent large prompts
-    if len(question_text) > 200:
-        question_text = question_text[:200] + "..."
-    
-    prompt = f"""Generate {num_variations} DIFFERENT variations of this math question.
+    prompt = f"""You are an expert mathematics question creator.
 
-ORIGINAL:
-Q: {question_text}
+Original Question:
+{question_text}
+
+Chapter: {chapter}
 Concept: {concept}
 Formula: {formula}
 
-Create {num_variations} variations that test the SAME concept in DIFFERENT ways:
-1. Different numbers/values
-2. Word problem version
-3. Reverse question (given answer, find X)
-4. Multi-step version
-5. Application-based
-6. Changed equation format
-7. Conceptual question
-8. Different solving method
-9. Real-world scenario
-10. Combined with related concept
+Generate {num_variations} DISTINCT variations of this question that test the SAME concept in DIFFERENT ways:
 
-For EACH variation provide:
-- Question text (concise, under 150 chars)
-- Hint (one short sentence)
-- Solution (step-by-step with final answer)
-- Difficulty (Easy/Medium/Hard)
+1. Different Numbers - Change the numerical values
+2. Different Equation Format - Rearrange or present differently
+3. Formula-based Variation - Emphasize different parts of the formula
+4. Word Problem - Create a real-world scenario
+5. Reverse Question - Given answer, find the original equation/values
+6. Application Question - Practical application of the concept
+7. Multi-step Question - Combine with other concepts
+8. Conceptual Variation - Test deeper understanding
+9. Changed Conditions - Modify constraints or parameters
+10. Different Method - Same concept, different solving approach
 
-JSON FORMAT (return ONLY this):
+For EACH variation, provide:
+- The question text
+- Short hint (1-2 lines)
+- Formula/concept used
+- Step-by-step solving approach (without final answer)
+- Difficulty level
+
+Return STRICT JSON ONLY:
 {{
+  "original_question": "{question_text[:100]}",
+  "concept": "{concept}",
   "variations": [
     {{
-      "type": "Different Numbers",
-      "question": "question text here",
-      "hint": "hint here",
-      "solution": "Step 1: ... Step 2: ... Final Answer: ...",
-      "difficulty": "Easy"
+      "variation_type": "Different Numbers",
+      "question": "full question text",
+      "hint": "short hint",
+      "formula": "formula used",
+      "steps": ["Step 1: ...", "Step 2: ...", "Step 3: ..."],
+      "difficulty": "Easy/Medium/Hard",
+      "full_solution": "complete solution (hidden by default)"
     }}
   ]
 }}
 
-Generate exactly {num_variations} variations with COMPLETE solutions. Return ONLY valid JSON."""
-
+Make each variation MEANINGFULLY different, not just cosmetic changes.
+"""
     try:
         raw = _call_groq(prompt, json_mode=True)
-        data = _extract_json_robust(raw)
-        variations = data.get("variations", [])
-        
-        # Add original question info to each variation
-        for v in variations:
-            v["original_concept"] = concept
-            v["chapter"] = chapter
-            # Ensure solution exists
-            if "solution" not in v or not v["solution"]:
-                v["solution"] = "Solution not available. Try solving using the hint provided."
-        
-        print(f"[DEBUG] Generated {len(variations)} variations with solutions for: {concept}")
-        return variations
-        
+        start = raw.find("{")
+        end = raw.rfind("}") + 1
+        data = json.loads(raw[start:end])
+        return data.get("variations", [])
     except Exception as e:
-        print(f"⚠️ Variation generation error: {e}")
-        # Return fallback variations with basic solutions
-        return [{
-            "type": f"Variation {i}",
-            "question": f"Alternative form of: {question_text[:80]}...",
-            "hint": "Apply the same concept with different approach",
-            "solution": f"Follow these steps: 1) Identify the concept ({concept}), 2) Apply the formula, 3) Solve step by step",
-            "difficulty": "Medium",
-            "original_concept": concept,
-            "chapter": chapter
-        } for i in range(1, min(num_variations + 1, 6))]  # At least return 5 fallback
         print(f"⚠️ Variation generation error: {e}")
         return []
 
